@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -12,7 +13,6 @@ import (
 	"go.tradeforge.dev/alpaca/model"
 
 	"github.com/go-resty/resty/v2"
-	"go.uber.org/zap"
 )
 
 const clientVersion = "v0.0.0"
@@ -38,14 +38,14 @@ type Client struct {
 	encoder     *encoder.Encoder
 	eventReader EventReader
 
-	logger *zap.Logger
+	logger *slog.Logger
 }
 
 // New returns a new client with the specified API key and config.
 func New(
 	apiURL string,
 	reader EventReader,
-	logger *zap.Logger,
+	logger *slog.Logger,
 ) *Client {
 	return newClient(apiURL, reader, logger)
 }
@@ -53,7 +53,7 @@ func New(
 func newClient(
 	apiURL string,
 	reader EventReader,
-	logger *zap.Logger,
+	logger *slog.Logger,
 ) *Client {
 	c := resty.New()
 
@@ -111,12 +111,12 @@ func (c *Client) CallURL(ctx context.Context, method, uri string, response any, 
 	if err != nil {
 		c.logger.Error(
 			err.Error(),
-			zap.Any("response", res))
+			slog.Any("response", res))
 		return fmt.Errorf("failed to execute request: %w", err)
 	} else if res.IsError() {
 		c.logger.Error(
 			res.String(),
-			zap.Any("response", res))
+			slog.Any("response", res))
 		responseError := parseResponseError(res)
 		return responseError
 	}
@@ -130,9 +130,9 @@ func (c *Client) CallURL(ctx context.Context, method, uri string, response any, 
 		}
 		c.logger.Debug(
 			"request",
-			zap.String("url", uri),
-			zap.Any("request headers", sanitizedHeaders),
-			zap.Any("response headers", res.Header()),
+			slog.String("url", uri),
+			slog.Any("request headers", sanitizedHeaders),
+			slog.Any("response headers", res.Header()),
 		)
 	}
 
@@ -174,12 +174,12 @@ func (c *Client) Listen(ctx context.Context, path string, params any, handler Ev
 	if err != nil {
 		c.logger.Error(
 			err.Error(),
-			zap.Any("response", res))
+			slog.Any("response", res))
 		return fmt.Errorf("failed to execute request: %w", err)
 	} else if res.IsError() {
 		c.logger.Error(
 			res.String(),
-			zap.Any("response", res))
+			slog.Any("response", res))
 		responseError := parseResponseError(res)
 		return responseError
 	}
@@ -193,9 +193,9 @@ func (c *Client) Listen(ctx context.Context, path string, params any, handler Ev
 		}
 		c.logger.Debug(
 			"request",
-			zap.String("url", uri),
-			zap.Any("request headers", sanitizedHeaders),
-			zap.Any("response headers", res.Header()),
+			slog.String("url", uri),
+			slog.Any("request headers", sanitizedHeaders),
+			slog.Any("response headers", res.Header()),
 		)
 	}
 	defer res.RawBody().Close()
@@ -208,7 +208,7 @@ func (c *Client) Listen(ctx context.Context, path string, params any, handler Ev
 			return err
 		case evt = <-evtChannel:
 			if err := handler(ctx, evt); err != nil {
-				c.logger.Error("handling event", zap.Error(err), zap.Any("event", evt))
+				c.logger.Error("handling event", slog.Any("error", err), slog.Any("event", evt))
 				return err
 			}
 		}
