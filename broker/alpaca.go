@@ -2,9 +2,9 @@
 package broker
 
 import (
-	"go.tradeforge.dev/alpaca/client"
+	"log/slog"
 
-	"go.uber.org/zap"
+	"go.tradeforge.dev/alpaca/client"
 )
 
 // Client defines a client for the Alpaca Broker API.
@@ -22,7 +22,7 @@ func NewClient(
 	apiKey string,
 	apiSecret string,
 	reader client.EventReader,
-	logger *zap.Logger,
+	logger *slog.Logger,
 ) *Client {
 	return newClient(apiURL, apiKey, apiSecret, reader, logger)
 }
@@ -32,7 +32,7 @@ func newClient(
 	apiKey string,
 	apiSecret string,
 	reader client.EventReader,
-	logger *zap.Logger,
+	logger *slog.Logger,
 ) *Client {
 	c := client.New(
 		apiURL,

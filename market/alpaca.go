@@ -2,13 +2,15 @@
 package market
 
 import (
-	"go.tradeforge.dev/alpaca/client"
+	"log/slog"
 
-	"go.uber.org/zap"
+	"go.tradeforge.dev/alpaca/client"
 )
 
 const (
-	apiKeyHeader    = "APCA-API-KEY-ID"
+	//nolint:gosec
+	apiKeyHeader = "APCA-API-KEY-ID"
+	//nolint:gosec
 	apiSecretHeader = "APCA-API-SECRET-KEY"
 )
 
@@ -24,7 +26,7 @@ func NewClient(
 	apiURL string,
 	apiKey string,
 	apiSecret string,
-	logger *zap.Logger,
+	logger *slog.Logger,
 ) *Client {
 	return newClient(apiURL, apiKey, apiSecret, logger)
 }
@@ -33,7 +35,7 @@ func newClient(
 	apiURL string,
 	apiKey string,
 	apiSecret string,
-	logger *zap.Logger,
+	logger *slog.Logger,
 ) *Client {
 	c := client.New(
 		apiURL,
