@@ -4,6 +4,11 @@ import (
 	"time"
 )
 
+const (
+	// PageLimit is the default limit of news items to be returned for given page.
+	PageLimit = 50
+)
+
 type GetNewsParams struct {
 	// List of symbols to retrive news.
 	Symbols string `query:"symbols,omitempty"`
