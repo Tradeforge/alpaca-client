@@ -17,24 +17,24 @@ const (
 
 // AccountClient is a client for the broker account API.
 type AccountClient struct {
-	client.Client
+	*client.Client
 }
 
 func (ac *AccountClient) CreateAccount(ctx context.Context, data *model.CreateAccountRequest, opts ...model.RequestOption) (*model.CreateAccountResponse, error) {
 	res := &model.CreateAccountResponse{}
-	err := ac.Call(ctx, http.MethodPost, CreateAccountPath, nil, res, model.Body(data))
+	err := ac.Call(ctx, http.MethodPost, CreateAccountPath, nil, res, append(opts, model.Body(data))...)
 	return res, err
 }
 
 func (ac *AccountClient) ListAccounts(ctx context.Context, params *model.ListAccountsParams, opts ...model.RequestOption) (model.ListAccountsResponse, error) {
 	res := model.ListAccountsResponse{}
-	err := ac.Call(ctx, http.MethodGet, ListAccountsPath, params, &res)
+	err := ac.Call(ctx, http.MethodGet, ListAccountsPath, params, &res, opts...)
 	return res, err
 }
 
 func (ac *AccountClient) GetAccount(ctx context.Context, params *model.GetAccountParams, opts ...model.RequestOption) (*model.GetAccountResponse, error) {
 	res := &model.GetAccountResponse{}
-	err := ac.Call(ctx, http.MethodGet, GetAccountPath, params, res)
+	err := ac.Call(ctx, http.MethodGet, GetAccountPath, params, res, opts...)
 	return res, err
 }
 

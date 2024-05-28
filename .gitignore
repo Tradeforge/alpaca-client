@@ -39,5 +39,8 @@ apollo/sandbox/src/config.js
 # Old and archived folders that are no longer needed, but preserved for posterity.
 *.old/
 
+# IDEs
+.idea/
+
 # Playground
 playground/

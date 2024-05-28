@@ -16,7 +16,7 @@ const (
 
 // EventClient defines a client for the Alpaca Broker Event API.
 type EventClient struct {
-	client.Client
+	*client.Client
 }
 
 type TradeEventHandler func(ctx context.Context, event *model.TradeEvent) error

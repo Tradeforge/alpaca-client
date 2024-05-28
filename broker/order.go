@@ -13,7 +13,7 @@ const (
 )
 
 type OrderClient struct {
-	client.Client
+	*client.Client
 }
 
 func (oc *OrderClient) CreateOrder(ctx context.Context, params *model.CreateOrderParams, data *model.CreateOrderRequest, opts ...model.RequestOption) (*model.CreateOrderResponse, error) {

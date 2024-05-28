@@ -14,7 +14,7 @@ const (
 
 // DocumentClient is a client for the document API.
 type DocumentClient struct {
-	client.Client
+	*client.Client
 }
 
 func (ac *AccountClient) UploadDocument(ctx context.Context, data *model.UploadDocumentRequest, params *model.UploadDocumentParams, opts ...model.RequestOption) error {

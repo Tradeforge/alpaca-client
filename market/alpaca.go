@@ -16,9 +16,10 @@ const (
 
 // Client defines a client for the Alpaca Broker API.
 type Client struct {
-	client.Client
+	*client.Client
 
 	StocksClient
+	NewsClient
 }
 
 // NewClient returns a new client with the specified API key and config.
@@ -51,7 +52,8 @@ func newClient(
 		apiSecret,
 	)
 	return &Client{
-		Client:       *c,
-		StocksClient: StocksClient{Client: *c},
+		Client:       c,
+		StocksClient: StocksClient{Client: c},
+		NewsClient:   NewsClient{Client: c},
 	}
 }

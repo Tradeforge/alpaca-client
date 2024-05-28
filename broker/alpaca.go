@@ -9,7 +9,7 @@ import (
 
 // Client defines a client for the Alpaca Broker API.
 type Client struct {
-	client.Client
+	*client.Client
 
 	AccountClient
 	EventClient
@@ -42,9 +42,9 @@ func newClient(
 	c.SetBasicAuth(apiKey, apiSecret)
 
 	return &Client{
-		Client:        *c,
-		AccountClient: AccountClient{Client: *c},
-		EventClient:   EventClient{Client: *c},
-		OrderClient:   OrderClient{Client: *c},
+		Client:        c,
+		AccountClient: AccountClient{Client: c},
+		EventClient:   EventClient{Client: c},
+		OrderClient:   OrderClient{Client: c},
 	}
 }

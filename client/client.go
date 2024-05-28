@@ -18,7 +18,6 @@ import (
 const clientVersion = "v0.0.0"
 
 const (
-	DefaultRetryCount    = 3
 	DefaultClientTimeout = 10 * time.Second
 )
 
@@ -31,7 +30,7 @@ type Event interface {
 	GetTimestamp() time.Time
 }
 
-// Client defines an HTTP client for the Polygon REST API.
+// Client defines an HTTP client for the REST API.
 type Client struct {
 	HTTP *resty.Client
 
@@ -56,9 +55,7 @@ func newClient(
 	logger *slog.Logger,
 ) *Client {
 	c := resty.New()
-
 	c.SetBaseURL(apiURL)
-	c.SetRetryCount(DefaultRetryCount)
 	c.SetHeader("User-Agent", fmt.Sprintf("Alpaca client/%v", clientVersion))
 	c.SetHeader("Accept", "application/json")
 
@@ -107,21 +104,35 @@ func (c *Client) CallURL(ctx context.Context, method, uri string, response any, 
 	req.SetResult(response).SetError(&model.ResponseError{})
 	req.SetHeader("Content-Type", "application/json")
 
+	_, err := c.executeRequest(ctx, req, method, uri, options.Trace)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *Client) executeRequest(
+	_ context.Context,
+	req *resty.Request,
+	method string,
+	uri string,
+	trace bool,
+) (*resty.Response, error) {
 	res, err := req.Execute(method, uri)
 	if err != nil {
 		c.logger.Error(
 			err.Error(),
 			slog.Any("response", res))
-		return fmt.Errorf("failed to execute request: %w", err)
+		return nil, fmt.Errorf("failed to execute request: %w", err)
 	} else if res.IsError() {
 		c.logger.Error(
 			res.String(),
 			slog.Any("response", res))
 		responseError := parseResponseError(res)
-		return responseError
+		return nil, responseError
 	}
 
-	if options.Trace {
+	if trace {
 		sanitizedHeaders := req.Header
 		for k := range sanitizedHeaders {
 			if k == "Authorization" {
@@ -136,7 +147,7 @@ func (c *Client) CallURL(ctx context.Context, method, uri string, response any, 
 		)
 	}
 
-	return nil
+	return res, nil
 }
 
 type EventStreamHandler func(ctx context.Context, event Event) error
