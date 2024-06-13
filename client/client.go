@@ -215,6 +215,10 @@ func (c *Client) Listen(ctx context.Context, path string, params any, handler Ev
 	var evt Event
 	for {
 		select {
+		case <-ctx.Done():
+			if err := ctx.Err(); err != nil {
+				return err
+			}
 		case err = <-errChannel:
 			return err
 		case evt = <-evtChannel:

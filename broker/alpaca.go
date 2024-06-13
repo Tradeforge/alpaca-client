@@ -7,6 +7,12 @@ import (
 	"go.tradeforge.dev/alpaca/client"
 )
 
+type Config struct {
+	BaseURL   string `env:"ALPACA_BROKER_API_URL" validate:"required,url"`
+	APIKey    string `env:"ALPACA_BROKER_API_KEY" validate:"required"`
+	APISecret string `env:"ALPACA_BROKER_API_SECRET" validate:"required"`
+}
+
 // Client defines a client for the Alpaca Broker API.
 type Client struct {
 	*client.Client
@@ -18,29 +24,16 @@ type Client struct {
 
 // NewClient returns a new client with the specified API key and config.
 func NewClient(
-	apiURL string,
-	apiKey string,
-	apiSecret string,
-	reader client.EventReader,
-	logger *slog.Logger,
-) *Client {
-	return newClient(apiURL, apiKey, apiSecret, reader, logger)
-}
-
-func newClient(
-	apiURL string,
-	apiKey string,
-	apiSecret string,
+	config Config,
 	reader client.EventReader,
 	logger *slog.Logger,
 ) *Client {
 	c := client.New(
-		apiURL,
+		config.BaseURL,
 		reader,
 		logger,
 	)
-	c.SetBasicAuth(apiKey, apiSecret)
-
+	c.SetBasicAuth(config.APIKey, config.APISecret)
 	return &Client{
 		Client:        c,
 		AccountClient: AccountClient{Client: c},

@@ -2,7 +2,10 @@ package market
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
+
+	"github.com/alpacahq/alpaca-trade-api-go/v3/marketdata/stream"
 
 	"go.tradeforge.dev/alpaca/client"
 	"go.tradeforge.dev/alpaca/model"
@@ -17,22 +20,54 @@ const (
 // StocksClient is a client for the stocks API.
 type StocksClient struct {
 	*client.Client
+	stream *stream.StocksClient
+	logger *slog.Logger
 }
 
-func (ac *StocksClient) GetLatestQuotes(ctx context.Context, params *model.GetLatestQuotesParams, opts ...model.RequestOption) (*model.GetLatestQuotesResponse, error) {
+func (sc *StocksClient) GetLatestQuotes(ctx context.Context, params *model.GetLatestQuotesParams, opts ...model.RequestOption) (*model.GetLatestQuotesResponse, error) {
 	res := &model.GetLatestQuotesResponse{}
-	err := ac.Call(ctx, http.MethodGet, GetLatestQuotesPath, params, res, opts...)
+	err := sc.Call(ctx, http.MethodGet, GetLatestQuotesPath, params, res, opts...)
 	return res, err
 }
 
-func (ac *StocksClient) GetSnapshots(ctx context.Context, params *model.GetSnapshotsParams, opts ...model.RequestOption) (*model.GetSnapshotsResponse, error) {
+func (sc *StocksClient) GetSnapshots(ctx context.Context, params *model.GetSnapshotsParams, opts ...model.RequestOption) (*model.GetSnapshotsResponse, error) {
 	res := map[string]model.Snapshot{}
-	err := ac.Call(ctx, http.MethodGet, GetSnapshotsPath, params, &res, opts...)
+	err := sc.Call(ctx, http.MethodGet, GetSnapshotsPath, params, &res, opts...)
 	return &model.GetSnapshotsResponse{Snapshots: res}, err
 }
 
-func (ac *StocksClient) GetHistoricalBars(ctx context.Context, params *model.GetHistoricalBarsParams, opts ...model.RequestOption) (*model.GetHistoricalBarsResponse, error) {
+func (sc *StocksClient) GetHistoricalBars(ctx context.Context, params *model.GetHistoricalBarsParams, opts ...model.RequestOption) (*model.GetHistoricalBarsResponse, error) {
 	res := &model.GetHistoricalBarsResponse{}
-	err := ac.Call(ctx, http.MethodGet, GetHistoricalBarsPath, params, res, opts...)
+	err := sc.Call(ctx, http.MethodGet, GetHistoricalBarsPath, params, res, opts...)
 	return res, err
+}
+
+type StockBarUpdateHandler func(context.Context, model.Bar) error
+
+func (sc *StocksClient) SubscribeToBarsEvents(
+	ctx context.Context,
+	params *model.StreamStockUpdatesParams,
+	handle StockBarUpdateHandler,
+) error {
+	if err := sc.stream.Connect(ctx); err != nil {
+		return err
+	}
+	return sc.stream.SubscribeToBars(
+		func(bar stream.Bar) {
+			if err := handle(ctx, model.Bar{
+				Symbol:                     bar.Symbol,
+				Open:                       bar.Open,
+				High:                       bar.High,
+				Low:                        bar.Low,
+				Close:                      bar.Close,
+				Volume:                     bar.Volume,
+				VolumeWeightedAveragePrice: bar.VWAP,
+				Timestamp:                  bar.Timestamp,
+			}); err != nil {
+				// TODO: We might want to optionally unsubscribe from the stream here.
+				sc.logger.Error("handling bar", slog.Any("error", err))
+			}
+		},
+		params.Symbols...,
+	)
 }

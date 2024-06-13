@@ -17,9 +17,9 @@ type GetLatestQuotesResponse struct {
 
 type Quote struct {
 	AskPrice  float64   `json:"ap"`
-	AskSize   int64     `json:"as"`
+	AskSize   uint64    `json:"as"`
 	BidPrice  float64   `json:"bp"`
-	BidSize   int64     `json:"bs"`
+	BidSize   uint64    `json:"bs"`
 	Timestamp time.Time `json:"t"`
 }
 
@@ -36,7 +36,7 @@ type GetLatestTradesResponse struct {
 
 type LatestTrade struct {
 	Price     float64   `json:"p"`
-	Size      int64     `json:"s"`
+	Size      uint64    `json:"s"`
 	Exchange  string    `json:"x"`
 	Timestamp time.Time `json:"t"`
 }
@@ -69,27 +69,6 @@ type GetHistoricalBarsParams struct {
 	PageToken *string   `query:"page_token,omitempty"`
 }
 
-/*
-Example Response:
-
-	{
-	  "bars": {
-	    "AAPL": [
-	      {
-	        "t": "2022-01-03T09:00:00Z",
-	        "o": 178.26,
-	        "h": 178.26,
-	        "l": 178.21,
-	        "c": 178.21,
-	        "v": 1118,
-	        "n": 65,
-	        "vw": 178.235733
-	      }
-	    ]
-	  },
-	  "next_page_token": "QUFQTHxNfDIwMjItMDEtMDNUMDk6MDA6MDAuMDAwMDAwMDAwWg=="
-	}
-*/
 type GetHistoricalBarsResponse struct {
 	Bars          HistoricalBarsAggregate `json:"bars"`
 	NextPageToken string                  `json:"next_page_token"`
@@ -98,11 +77,16 @@ type GetHistoricalBarsResponse struct {
 type HistoricalBarsAggregate map[string][]Bar
 
 type Bar struct {
-	Open           float64   `json:"o"`
-	High           float64   `json:"h"`
-	Low            float64   `json:"l"`
-	Close          float64   `json:"c"`
-	Volume         int64     `json:"v"`
-	VolumeWeighted float64   `json:"vw"`
-	Timestamp      time.Time `json:"t"`
+	Symbol                     string    `json:"S"`
+	Open                       float64   `json:"o"`
+	High                       float64   `json:"h"`
+	Low                        float64   `json:"l"`
+	Close                      float64   `json:"c"`
+	Volume                     uint64    `json:"v"`
+	VolumeWeightedAveragePrice float64   `json:"vw"`
+	Timestamp                  time.Time `json:"t"`
+}
+
+type StreamStockUpdatesParams struct {
+	Symbols []string `json:"symbols"`
 }

@@ -33,7 +33,7 @@ func (c *EventClient) WatchTradeEvents(ctx context.Context, params *model.WatchP
 
 type TransferEventHandler func(ctx context.Context, event *model.TransferEvent) error
 
-func (c *EventClient) WatchTransferEvents(ctx context.Context, params *model.WatchParams, handler TransferEventHandler, opts ...model.RequestOption) error {
+func (c *EventClient) SubscribeToTransferEvents(ctx context.Context, params *model.WatchParams, handler TransferEventHandler, opts ...model.RequestOption) error {
 	return c.Listen(
 		ctx,
 		GetTransferEventsPath,
