@@ -4,64 +4,44 @@ package model
 
 import (
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type WatchParams struct {
-	Since   string `query:"since,omitempty"`
-	Until   string `query:"until,omitempty"`
+	// Since is a string field that represents a date in the format "YYYY-MM-DD". It is used to specify the start date from which to watch events.
+	Since string `query:"since,omitempty"`
+	// Until s a string field that represents a date in the format "YYYY-MM-DD". It is used to specify the end date until which to watch events.
+	Until string `query:"until,omitempty"`
+	// SinceID is a string field that is used to specify the ID from which to start watching events.
 	SinceID string `query:"since_id,omitempty"`
+	// UntilID is a string field that is used to specify the ID until which to watch events.
 	UntilID string `query:"until_id,omitempty"`
 }
 
-// Example of a trade event:
-//
-//	{
-//	    "account_id": "aa4439c3-cf7d-4251-8689-a575a169d6d3",
-//	    "at": "2023-10-13T13:28:58.387652Z",
-//	    "event_id": "01HCMKKNRK7S5C1JYP50QGDECQ",
-//	    "event": "new",
-//	    "timestamp": "2023-10-13T13:28:58.37957033Z",
-//	    "order": {
-//	        "id": "bb2403bc-88ec-430b-b41c-f9ee80c8f0e1",
-//	        "client_order_id": "508789e5-cea3-4235-b546-6c62ff92bd79",
-//	        "created_at": "2023-10-13T13:28:58.361530031Z",
-//	        "updated_at": "2023-10-13T13:28:58.386058029Z",
-//	        "submitted_at": "2023-10-13T13:28:58.360070731Z",
-//	        "filled_at": null,
-//	        "expired_at": null,
-//	        "cancel_requested_at": null,
-//	        "canceled_at": null,
-//	        "failed_at": null,
-//	        "replaced_at": null,
-//	        "replaced_by": null,
-//	        "replaces": null,
-//	        "asset_id": "b0b6dd9d-8b9b-48a9-ba46-b9d54906e415",
-//	        "symbol": "AAPL",
-//	        "asset_class": "us_equity",
-//	        "notional": "10",
-//	        "qty": null,
-//	        "filled_qty": "0",
-//	        "filled_avg_price": null,
-//	        "order_class": "",
-//	        "order_type": "market",
-//	        "type": "market",
-//	        "side": "buy",
-//	        "time_in_force": "day",
-//	        "limit_price": null,
-//	        "stop_price": null,
-//	        "status": "new",
-//	        "extended_hours": false,
-//	        "legs": null,
-//	        "trail_percent": null,
-//	        "trail_price": null,
-//	        "hwm": null,
-//	        "commission": "0"
-//	    },
-//	    "execution_id": "7922ab44-5b33-4049-ab9a-0cfd805ba989"
-//	}
+// AccountStatusUpdateEvent represents an account status event.
+type AccountStatusUpdateEvent struct {
+	EventID             int                        `json:"event_id"`
+	EventUlid           string                     `json:"event_ulid"`
+	AccountID           uuid.UUID                  `json:"account_id"`
+	AccountNumber       string                     `json:"account_number"`
+	StatusFrom          AccountStatus              `json:"status_from"`
+	StatusTo            AccountStatus              `json:"status_to"`
+	Reason              string                     `json:"reason"`
+	At                  string                     `json:"at"`
+	KYCResults          KYCResults                 `json:"kyc_results"`
+	CryptoStatusFrom    string                     `json:"crypto_status_from"`
+	CryptoStatusTo      string                     `json:"crypto_status_to"`
+	AdminConfigurations AccountAdminConfigurations `json:"admin_configurations"`
+	PatternDayTrader    bool                       `json:"pattern_day_trader"`
+	AccountBlocked      bool                       `json:"account_blocked"`
+	TradingBlocked      bool                       `json:"trading_blocked"`
+}
+
+// TradeEvent represents a trade event.
 type TradeEvent struct {
 	ID          string         `json:"event_id"`
-	AccountID   string         `json:"account_id"`
+	AccountID   uuid.UUID      `json:"account_id"`
 	ExecutionID string         `json:"execution_id"`
 	Event       TradeEventType `json:"event"`
 	Order       Order          `json:"order"`
@@ -74,6 +54,8 @@ type TradeEvent struct {
 	Timestamp        time.Time `json:"timestamp"`
 }
 
+// TradeEventType represents a trade event.
+//
 // See https://github.com/alpacahq/alpaca-docs/blob/master/content/api-references/broker-api/events.md#trade-events.
 type TradeEventType string
 
@@ -121,8 +103,8 @@ func (e TradeEventType) String() string {
 	return string(e)
 }
 
-// TradeEvent represents a transfer status update.
-type TransferEvent struct {
+// TransferStatusUpdateEvent represents a transfer status update.
+type TransferStatusUpdateEvent struct {
 	ID         string         `json:"event_id"`
 	ULID       string         `json:"event_ulid"`
 	AccountID  string         `json:"account_id"`
@@ -131,3 +113,26 @@ type TransferEvent struct {
 	StatusTo   TransferStatus `json:"status_to"`
 	Timestamp  time.Time      `json:"at"`
 }
+
+type TransferStatus string
+
+const (
+	// TransferStatusQueued represents a transfer that is in queue to be processed.
+	TransferStatusQueued TransferStatus = "QUEUED"
+	// TransferStatusApprovalPending represents a transfer that is pending approval.
+	TransferStatusApprovalPending TransferStatus = "APPROVAL_PENDING"
+	// TransferStatusPending represents a transfer that is pending processing.
+	TransferStatusPending TransferStatus = "PENDING"
+	// TransferStatusSentToClearing represents a transfer that is being processed by the clearing firm.
+	TransferStatusSentToClearing TransferStatus = "SENT_TO_CLEARING"
+	// TransferStatusRejected represents a transfer that is rejected.
+	TransferStatusRejected TransferStatus = "REJECTED"
+	// TransferStatusCanceled represents a client initiated transfer cancellation.
+	TransferStatusCanceled TransferStatus = "CANCELED"
+	// TransferStatusApproved represents a transfer that is approved.
+	TransferStatusApproved TransferStatus = "APPROVED"
+	// TransferStatusComplete represents a transfer that is completed.
+	TransferStatusComplete TransferStatus = "COMPLETE"
+	// TransferStatusReturned represents a bank issued ACH return for the transfer.
+	TransferStatusReturned TransferStatus = "RETURNED"
+)

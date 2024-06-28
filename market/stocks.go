@@ -42,7 +42,7 @@ func (sc *StocksClient) GetHistoricalBars(ctx context.Context, params *model.Get
 	return res, err
 }
 
-type StockBarUpdateHandler func(context.Context, model.Bar) error
+type StockBarUpdateHandler func(context.Context, *model.Bar) error
 
 func (sc *StocksClient) SubscribeToBarsEvents(
 	ctx context.Context,
@@ -54,7 +54,7 @@ func (sc *StocksClient) SubscribeToBarsEvents(
 	}
 	return sc.stream.SubscribeToBars(
 		func(bar stream.Bar) {
-			if err := handle(ctx, model.Bar{
+			if err := handle(ctx, &model.Bar{
 				Symbol:                     bar.Symbol,
 				Open:                       bar.Open,
 				High:                       bar.High,

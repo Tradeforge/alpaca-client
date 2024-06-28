@@ -10,7 +10,7 @@ const (
 )
 
 type GetNewsParams struct {
-	// List of symbols to retrive news.
+	// List of symbols to retrieve news.
 	Symbols string `query:"symbols,omitempty"`
 	// (RFC 3339) Start date to start retrieving news articles.
 	Since *time.Time `query:"start,omitempty"`

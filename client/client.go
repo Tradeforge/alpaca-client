@@ -155,6 +155,8 @@ type EventStreamHandler func(ctx context.Context, event Event) error
 // Listen to an event data stream.
 // This is a blocking call that will continue to read from the stream until the context is canceled
 // or the watch is stopped.
+//
+//nolint:gocognit
 func (c *Client) Listen(ctx context.Context, path string, params any, handler EventStreamHandler, opts ...model.RequestOption) error {
 	uri, err := c.encoder.EncodeParams(path, params)
 	if err != nil {

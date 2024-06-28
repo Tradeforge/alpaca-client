@@ -2,6 +2,8 @@ package model
 
 import (
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type CreateAccountRequest struct {
@@ -15,10 +17,10 @@ type CreateAccountRequest struct {
 }
 
 type Account struct {
-	ID            string `json:"id"`
-	Status        string `json:"status"`
-	AccountNumber string `json:"account_number"`
-	AccountType   string `json:"account_type"`
+	ID            uuid.UUID     `json:"id"`
+	Status        AccountStatus `json:"status"`
+	AccountNumber string        `json:"account_number"`
+	AccountType   string        `json:"account_type"`
 
 	Contact        Contact         `json:"contact"`
 	Currency       string          `json:"currency"`
@@ -28,6 +30,33 @@ type Account struct {
 	Documents      []Document      `json:"documents"`
 	TrustedContact *TrustedContact `json:"trusted_contact"`
 }
+
+type AccountStatus string
+
+const (
+	// AccountStatusInactive represents an account that is not set to trade given asset.
+	AccountStatusInactive AccountStatus = "INACTIVE"
+	// AccountStatusOnboarding represents an application that is expected for this user, but has not been submitted yet.
+	AccountStatusOnboarding AccountStatus = "ONBOARDING"
+	// AccountStatusSubmitted represents an application that has been submitted and in process.
+	AccountStatusSubmitted AccountStatus = "SUBMITTED"
+	// AccountStatusSubmissionFailed represents a failure on submission.
+	AccountStatusSubmissionFailed AccountStatus = "SUBMISSION_FAILED"
+	// AccountStatusActionRequired represents an application that requires manual action.
+	AccountStatusActionRequired AccountStatus = "ACTION_REQUIRED"
+	// AccountStatusAccountUpdated represents when an account has been modified by the user.
+	AccountStatusAccountUpdated AccountStatus = "ACCOUNT_UPDATED"
+	// AccountStatusApprovalPending represents the initial value. The application approval process is in process.
+	AccountStatusApprovalPending AccountStatus = "APPROVAL_PENDING"
+	// AccountStatusApproved represents an account application that has been approved, and waiting to be ACTIVE.
+	AccountStatusApproved AccountStatus = "APPROVED"
+	// AccountStatusRejected represents an account application that is rejected for some reason.
+	AccountStatusRejected AccountStatus = "REJECTED"
+	// AccountStatusActive represents an account that is fully active. Trading and funding are processed under this status.
+	AccountStatusActive AccountStatus = "ACTIVE"
+	// AccountStatusAccountClosed represents an account that is closed.
+	AccountStatusAccountClosed AccountStatus = "ACCOUNT_CLOSED"
+)
 
 type Contact struct {
 	EmailAddress  string   `json:"email_address"`
@@ -153,4 +182,29 @@ type GetAccountHistoryResponse struct {
 	ProfitLossPct []float64 `json:"profit_loss_pct"`
 	BaseValue     float64   `json:"base_value"`
 	Timeframe     string    `json:"timeframe"`
+}
+
+type KYCResults struct {
+	Reject                string `json:"reject"`
+	Accept                string `json:"accept"`
+	Indeterminate         string `json:"indeterminate"`
+	AdditionalInformation string `json:"additional_information"`
+	Summary               string `json:"summary"`
+}
+
+type AccountAdminConfigurations struct {
+	RestrictToLiquidationReasons struct {
+		PatternDayTrading     bool `json:"pattern_day_trading"`
+		AchReturn             bool `json:"ach_return"`
+		PositionToEquityRatio bool `json:"position_to_equity_ratio"`
+		Unspecified           bool `json:"unspecified"`
+	} `json:"restrict_to_liquidation_reasons"`
+	OutgoingTransfersBlocked bool   `json:"outgoing_transfers_blocked"`
+	IncomingTransfersBlocked bool   `json:"incoming_transfers_blocked"`
+	DisableShorting          bool   `json:"disable_shorting"`
+	DisableFractional        bool   `json:"disable_fractional"`
+	DisableCrypto            bool   `json:"disable_crypto"`
+	DisableDayTrading        bool   `json:"disable_day_trading"`
+	MaxMarginMultiplier      int    `json:"max_margin_multiplier"`
+	AcctDailyTransferLimit   string `json:"acct_daily_transfer_limit"`
 }

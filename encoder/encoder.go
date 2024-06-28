@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
-	"time"
 
 	"github.com/go-playground/form/v4"
 	"github.com/go-playground/validator/v10"
@@ -95,11 +94,4 @@ func newEncoder(tagName string) *form.Encoder {
 	e.SetTagName(tagName)
 
 	return e
-}
-
-func isDay(t time.Time) bool {
-	if t.Hour() != 0 || t.Minute() != 0 || t.Second() != 0 || t.Nanosecond() != 0 {
-		return false
-	}
-	return true
 }
