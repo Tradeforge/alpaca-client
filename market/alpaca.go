@@ -2,6 +2,7 @@
 package market
 
 import (
+	"fmt"
 	"log/slog"
 	"time"
 
@@ -80,6 +81,7 @@ func NewClient(
 					slog.String("feed", config.Stream.Feed),
 				)
 			}),
+		stream.WithLogger(wrapLogger(logger)),
 	)
 	return &Client{
 		Client: c,
@@ -90,4 +92,24 @@ func NewClient(
 		},
 		NewsClient: NewsClient{Client: c},
 	}
+}
+
+func wrapLogger(logger *slog.Logger) *defaultLogger {
+	return &defaultLogger{logger}
+}
+
+type defaultLogger struct {
+	*slog.Logger
+}
+
+func (d *defaultLogger) Infof(format string, v ...interface{}) {
+	d.Info(fmt.Sprintf(format, v...))
+}
+
+func (d *defaultLogger) Warnf(format string, v ...interface{}) {
+	d.Warn(fmt.Sprintf(format, v...))
+}
+
+func (d *defaultLogger) Errorf(format string, v ...interface{}) {
+	d.Error(fmt.Sprintf(format, v...))
 }

@@ -28,6 +28,7 @@ type EventReader interface {
 type Event interface {
 	GetData() []byte
 	GetTimestamp() time.Time
+	IsComment() bool
 }
 
 // Client defines an HTTP client for the REST API.
@@ -155,24 +156,60 @@ type EventStreamHandler func(ctx context.Context, event Event) error
 // Listen to an event data stream.
 // This is a blocking call that will continue to read from the stream until the context is canceled
 // or the watch is stopped.
-//
-//nolint:gocognit
 func (c *Client) Listen(ctx context.Context, path string, params any, handler EventStreamHandler, opts ...model.RequestOption) error {
-	uri, err := c.encoder.EncodeParams(path, params)
+	evtChannel, errChannel, err := c.listenToSSE(ctx, path, params, opts...)
 	if err != nil {
-		return err
+		return fmt.Errorf("initializing SSE stream: %w", err)
+	}
+	for {
+		select {
+		case <-ctx.Done():
+			return fmt.Errorf("context cancelled: %w", ctx.Err())
+		case err := <-errChannel:
+			return fmt.Errorf("reading from stream: %w", err)
+		case evt := <-evtChannel:
+			if err := handler(ctx, evt); err != nil {
+				return fmt.Errorf("handling event: %w", err)
+			}
+		}
+	}
+}
+
+// Subscribe to an SSE event data stream.
+// This is a non-blocking call.
+func (c *Client) Subscribe(ctx context.Context, path string, params any, handler EventStreamHandler, opts ...model.RequestOption) error {
+	evtChannel, errChannel, err := c.listenToSSE(ctx, path, params, opts...)
+	if err != nil {
+		return fmt.Errorf("initializing SSE stream: %w", err)
 	}
 
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				c.logger.Error("context cancelled", slog.Any("error", ctx.Err()))
+				return
+			case err := <-errChannel:
+				c.logger.Error("error reading from stream", slog.Any("error", err))
+				return
+			case evt := <-evtChannel:
+				if err := handler(ctx, evt); err != nil {
+					return // Do not log. The handler should log the error.
+				}
+			}
+		}
+	}()
+	return nil
+}
+
+func (c *Client) listenToSSE(ctx context.Context, path string, params any, opts ...model.RequestOption) (<-chan Event, <-chan error, error) {
+	uri, err := c.encoder.EncodeParams(path, params)
+	if err != nil {
+		return nil, nil, err
+	}
 	options := mergeOptions(opts...)
 
 	req := c.HTTP.R().SetContext(ctx)
-	if options.Body != nil {
-		b, err := json.Marshal(options.Body)
-		if err != nil {
-			return fmt.Errorf("failed to marshal body: %w", err)
-		}
-		req.SetBody(b)
-	}
 	req.SetQueryParamsFromValues(options.QueryParams)
 	req.SetHeaderMultiValues(options.Headers)
 	req.SetError(&model.ResponseError{})
@@ -180,56 +217,15 @@ func (c *Client) Listen(ctx context.Context, path string, params any, handler Ev
 	req.SetHeader("Connection", "keep-alive")
 	req.SetHeader("Cache-Control", "no-cache")
 	// Not parsing the response enables us to read the raw response body without it
-	// getting closed. Hence allowing the SSE client to keep reading from the stream.
+	// getting closed. Hence, allowing the SSE client to keep reading from the stream.
 	req.SetDoNotParseResponse(true)
 
-	res, err := req.Execute(http.MethodGet, uri)
+	res, err := c.executeRequest(ctx, req, http.MethodGet, uri, options.Trace)
 	if err != nil {
-		c.logger.Error(
-			err.Error(),
-			slog.Any("response", res))
-		return fmt.Errorf("failed to execute request: %w", err)
-	} else if res.IsError() {
-		c.logger.Error(
-			res.String(),
-			slog.Any("response", res))
-		responseError := parseResponseError(res)
-		return responseError
+		return nil, nil, err
 	}
-
-	if options.Trace {
-		sanitizedHeaders := req.Header
-		for k := range sanitizedHeaders {
-			if k == "Authorization" {
-				sanitizedHeaders[k] = []string{"REDACTED"}
-			}
-		}
-		c.logger.Debug(
-			"request",
-			slog.String("url", uri),
-			slog.Any("request headers", sanitizedHeaders),
-			slog.Any("response headers", res.Header()),
-		)
-	}
-	defer res.RawBody().Close()
-
 	evtChannel, errChannel := c.eventReader.Listen(ctx, res.RawBody())
-	var evt Event
-	for {
-		select {
-		case <-ctx.Done():
-			if err := ctx.Err(); err != nil {
-				return err
-			}
-		case err = <-errChannel:
-			return err
-		case evt = <-evtChannel:
-			if err := handler(ctx, evt); err != nil {
-				c.logger.Error("handling event", slog.Any("error", err), slog.Any("event", evt))
-				return err
-			}
-		}
-	}
+	return evtChannel, errChannel, nil
 }
 
 func mergeOptions(opts ...model.RequestOption) *model.RequestOptions {

@@ -12,7 +12,7 @@ import (
 const (
 	GetTradeEventsPath          = "/v2beta1/events/trades"
 	GetTransferStatusEventsPath = "/v1/events/transfers/status"
-	GetAccountStatusEventsPath  = "v1/events/accounts/status"
+	GetAccountStatusEventsPath  = "/v1/events/accounts/status"
 )
 
 // EventClient defines a client for the Alpaca Broker Event API.
@@ -22,8 +22,11 @@ type EventClient struct {
 
 type AccountStatusUpdateHandler func(ctx context.Context, event *model.AccountStatusUpdateEvent) error
 
+// SubscribeToAccountStatusUpdateEvents subscribes to account status update SSE events.
+// The handler will be called for each event received.
+// This is a non-blocking call.
 func (c *EventClient) SubscribeToAccountStatusUpdateEvents(ctx context.Context, params *model.WatchParams, handler AccountStatusUpdateHandler, opts ...model.RequestOption) error {
-	return c.Listen(
+	return c.Subscribe(
 		ctx,
 		GetAccountStatusEventsPath,
 		params,
@@ -34,6 +37,9 @@ func (c *EventClient) SubscribeToAccountStatusUpdateEvents(ctx context.Context, 
 
 func wrapAccountStatusUpdateHandler(handler AccountStatusUpdateHandler) client.EventStreamHandler {
 	return func(ctx context.Context, event client.Event) error {
+		if event.IsComment() {
+			return nil
+		}
 		e, err := parseAccountStatusUpdateEvent(event)
 		if err != nil {
 			return fmt.Errorf("parsing account status event: %w", err)
@@ -52,8 +58,11 @@ func parseAccountStatusUpdateEvent(event client.Event) (*model.AccountStatusUpda
 
 type TransferStatusUpdateEventHandler func(ctx context.Context, event *model.TransferStatusUpdateEvent) error
 
+// SubscribeToTransferStatusUpdateEvents subscribes to transfer status update SSE events.
+// The handler will be called for each event received.
+// This is a non-blocking call.
 func (c *EventClient) SubscribeToTransferStatusUpdateEvents(ctx context.Context, params *model.WatchParams, handler TransferStatusUpdateEventHandler, opts ...model.RequestOption) error {
-	return c.Listen(
+	return c.Subscribe(
 		ctx,
 		GetTransferStatusEventsPath,
 		params,
@@ -64,6 +73,9 @@ func (c *EventClient) SubscribeToTransferStatusUpdateEvents(ctx context.Context,
 
 func wrapTransferEventHandler(handler TransferStatusUpdateEventHandler) client.EventStreamHandler {
 	return func(ctx context.Context, event client.Event) error {
+		if event.IsComment() {
+			return nil
+		}
 		e, err := parseTransferEvent(event)
 		if err != nil {
 			return fmt.Errorf("parsing transfer event: %w", err)
@@ -82,6 +94,9 @@ func parseTransferEvent(event client.Event) (*model.TransferStatusUpdateEvent, e
 
 type TradeEventHandler func(ctx context.Context, event *model.TradeEvent) error
 
+// SubscribeToTradeEvents subscribes to trade SSE events.
+// The handler will be called for each event received.
+// This is a non-blocking call.
 func (c *EventClient) SubscribeToTradeEvents(ctx context.Context, params *model.WatchParams, handler TradeEventHandler, opts ...model.RequestOption) error {
 	return c.Listen(
 		ctx,
@@ -94,6 +109,9 @@ func (c *EventClient) SubscribeToTradeEvents(ctx context.Context, params *model.
 
 func wrapTradeEventHandler(handler TradeEventHandler) client.EventStreamHandler {
 	return func(ctx context.Context, event client.Event) error {
+		if event.IsComment() {
+			return nil
+		}
 		e, err := parseTradeEvent(event)
 		if err != nil {
 			return fmt.Errorf("parsing trade event: %w", err)

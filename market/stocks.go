@@ -44,6 +44,9 @@ func (sc *StocksClient) GetHistoricalBars(ctx context.Context, params *model.Get
 
 type StockBarUpdateHandler func(context.Context, *model.Bar) error
 
+// SubscribeToBarsEvents subscribes to bar updates for the specified symbols.
+// The handler is called for each bar update.
+// This is a non-blocking call.
 func (sc *StocksClient) SubscribeToBarsEvents(
 	ctx context.Context,
 	params *model.StreamStockUpdatesParams,
