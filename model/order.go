@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 )
 
 // Order represents an order entity.
@@ -47,63 +48,63 @@ import (
 // | `swap_fee_bps`     | string/number    | Fee in basis points on top swap rate charged by the correspondent on every order |
 // | `usd`              | object           | Nested object to encompass the USD equivalent fields for the local currency fields |
 type Order struct {
-	ID             uuid.UUID  `json:"id"`
-	ClientOrderID  uuid.UUID  `json:"client_order_id"`
-	Type           string     `json:"type"`
-	Side           string     `json:"side"`
-	Symbol         string     `json:"symbol"`
-	AssetID        string     `json:"asset_id"`
-	AssetClass     string     `json:"asset_class"`
-	Notional       string     `json:"notional"`
-	Quantity       string     `json:"qty"`
-	FilledQuantity string     `json:"filled_qty"`
-	FilledAvgPrice string     `json:"filled_avg_price"`
-	OrderClass     string     `json:"order_class"`
-	OrderType      string     `json:"order_type"`
-	TimeInForce    string     `json:"time_in_force"`
-	LimitPrice     string     `json:"limit_price"`
-	StopPrice      string     `json:"stop_price"`
-	ExtendedHours  bool       `json:"extended_hours"`
-	Legs           []Order    `json:"legs"`
-	TrailPercent   string     `json:"trail_percent"`
-	TrailPrice     string     `json:"trail_price"`
-	HWM            string     `json:"hwm"`
-	Commission     string     `json:"commission"`
-	SwapRate       string     `json:"swap_rate"`
-	SwapFeeBPS     string     `json:"swap_fee_bps"`
-	CreatedAt      time.Time  `json:"created_at"`
-	UpdatedAt      time.Time  `json:"updated_at"`
-	SubmittedAt    time.Time  `json:"submitted_at"`
-	FilledAt       *time.Time `json:"filled_at"`
-	ExpiredAt      *time.Time `json:"expired_at"`
-	CancelledAt    *time.Time `json:"cancelled_at"`
-	FailedAt       *time.Time `json:"failed_at"`
-	ReplacedAt     *time.Time `json:"replaced_at"`
-	ReplacedBy     *uuid.UUID `json:"replaced_by"`
-	Replaces       *uuid.UUID `json:"replaces"`
-	Status         string     `json:"status"`
+	ID             uuid.UUID        `json:"id"`
+	ClientOrderID  uuid.UUID        `json:"client_order_id"`
+	Type           string           `json:"type"`
+	Side           string           `json:"side"`
+	Symbol         string           `json:"symbol"`
+	AssetID        string           `json:"asset_id"`
+	AssetClass     string           `json:"asset_class"`
+	Notional       decimal.Decimal  `json:"notional"`
+	Quantity       decimal.Decimal  `json:"qty"`
+	FilledQuantity decimal.Decimal  `json:"filled_qty"`
+	FilledAvgPrice decimal.Decimal  `json:"filled_avg_price"`
+	OrderClass     string           `json:"order_class"`
+	OrderType      string           `json:"order_type"`
+	TimeInForce    string           `json:"time_in_force"`
+	LimitPrice     *decimal.Decimal `json:"limit_price"`
+	StopPrice      *decimal.Decimal `json:"stop_price"`
+	ExtendedHours  bool             `json:"extended_hours"`
+	Legs           []Order          `json:"legs"`
+	TrailPercent   *decimal.Decimal `json:"trail_percent"`
+	TrailPrice     *decimal.Decimal `json:"trail_price"`
+	HWM            string           `json:"hwm"`
+	Commission     decimal.Decimal  `json:"commission"`
+	SwapRate       decimal.Decimal  `json:"swap_rate"`
+	SwapFeeBPS     decimal.Decimal  `json:"swap_fee_bps"`
+	CreatedAt      time.Time        `json:"created_at"`
+	UpdatedAt      time.Time        `json:"updated_at"`
+	SubmittedAt    time.Time        `json:"submitted_at"`
+	FilledAt       *time.Time       `json:"filled_at"`
+	ExpiredAt      *time.Time       `json:"expired_at"`
+	CancelledAt    *time.Time       `json:"cancelled_at"`
+	FailedAt       *time.Time       `json:"failed_at"`
+	ReplacedAt     *time.Time       `json:"replaced_at"`
+	ReplacedBy     *uuid.UUID       `json:"replaced_by"`
+	Replaces       *uuid.UUID       `json:"replaces"`
+	Status         string           `json:"status"`
 }
 
 type CreateOrderRequest struct {
 	Symbol          string           `json:"symbol"`
-	Quantity        *string          `json:"qty"`
-	Notional        *string          `json:"notional,omitempty"`
+	Quantity        *decimal.Decimal `json:"qty"`
+	Notional        *decimal.Decimal `json:"notional,omitempty"`
 	Side            string           `json:"side"`
 	Type            string           `json:"type"`
 	TimeInForce     string           `json:"time_in_force"`
-	LimitPrice      *string          `json:"limit_price,omitempty"`
-	StopsPrice      *string          `json:"stop_price,omitempty"`
-	TrailPrice      *string          `json:"trail_price,omitempty"`
-	TrailPercent    *string          `json:"trail_percent,omitempty"`
+	LimitPrice      *decimal.Decimal `json:"limit_price,omitempty"`
+	StopsPrice      *decimal.Decimal `json:"stop_price,omitempty"`
+	TrailPrice      *decimal.Decimal `json:"trail_price,omitempty"`
+	TrailPercent    *decimal.Decimal `json:"trail_percent,omitempty"`
 	TakeProfitPrice *TakeProfitPrice `json:"take_profit,omitempty"`
 	ClientOrderID   string           `json:"client_order_id"`
-	Commission      *string          `json:"commission,omitempty"`
-	CommisionBPS    *string          `json:"commission_bps,omitempty"`
+	Commission      *decimal.Decimal `json:"commission,omitempty"`
+	CommisionBPS    *decimal.Decimal `json:"commission_bps,omitempty"`
 	ExtendedHours   bool             `json:"extended_hours"`
 }
 
 type TakeProfitPrice struct {
-	LimitPrice float64 `json:"limit_price"`
+	LimitPrice decimal.Decimal `json:"limit_price"`
 }
 
 type CreateOrderParams struct {
