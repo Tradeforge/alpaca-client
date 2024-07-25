@@ -98,7 +98,7 @@ type CreateOrderRequest struct {
 	TrailPercent    *decimal.Decimal `json:"trail_percent,omitempty"`
 	TakeProfitPrice *TakeProfitPrice `json:"take_profit,omitempty"`
 	ClientOrderID   string           `json:"client_order_id"`
-	Commission      *decimal.Decimal `json:"commission,omitempty"`
+	Commission      decimal.Decimal  `json:"commission,omitempty"`
 	CommissionType  *CommissionType  `json:"commission_type,omitempty"`
 	ExtendedHours   bool             `json:"extended_hours"`
 }
