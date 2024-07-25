@@ -99,9 +99,27 @@ type CreateOrderRequest struct {
 	TakeProfitPrice *TakeProfitPrice `json:"take_profit,omitempty"`
 	ClientOrderID   string           `json:"client_order_id"`
 	Commission      *decimal.Decimal `json:"commission,omitempty"`
-	CommisionBPS    *decimal.Decimal `json:"commission_bps,omitempty"`
+	CommissionType  *CommissionType  `json:"commission_type,omitempty"`
 	ExtendedHours   bool             `json:"extended_hours"`
 }
+
+// CommissionType is an enum to select how to interpret the value provided in the commission field.
+//
+// notional:
+// Charge commission on a per order basis. (When the commission_type field is omitted from the order request, this is used as the default).
+//
+// qty:
+// Charge commission on a per qty/contract basis, pro rated.
+//
+// bps:
+// The percent commission you want to charge the end user on the order (expressed in bps). Alpaca will convert the order to a notional amount for purposes of calculating commission.
+type CommissionType string
+
+const (
+	CommissionTypeNotional CommissionType = "notional"
+	CommissionTypeQty      CommissionType = "qty"
+	CommissionTypeBPS      CommissionType = "bps"
+)
 
 type TakeProfitPrice struct {
 	LimitPrice decimal.Decimal `json:"limit_price"`
