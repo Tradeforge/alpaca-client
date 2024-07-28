@@ -132,3 +132,24 @@ type CreateOrderParams struct {
 type CreateOrderResponse struct {
 	Order
 }
+
+type GetOrderParams struct {
+	AccountID string `path:"id"`
+	OrderID   string `path:"order_id"`
+}
+
+type GetOrderResponse struct {
+	Order
+}
+
+type ListOrdersParams struct {
+	AccountID string    `path:"id"`
+	Limit     int       `query:"limit"`
+	After     time.Time `query:"after"`
+	Until     time.Time `query:"until"`
+	Direction string    `query:"direction"`
+	Symbols   []string  `query:"symbols"`
+	Status    string    `query:"status"`
+}
+
+type ListOrdersResponse = []Order

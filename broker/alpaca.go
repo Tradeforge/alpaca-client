@@ -20,6 +20,7 @@ type Client struct {
 	AccountClient
 	EventClient
 	OrderClient
+	MarketClient
 }
 
 // NewClient returns a new client with the specified API key and config.
@@ -39,5 +40,6 @@ func NewClient(
 		AccountClient: AccountClient{Client: c},
 		EventClient:   EventClient{Client: c},
 		OrderClient:   OrderClient{Client: c},
+		MarketClient:  MarketClient{Client: c},
 	}
 }
