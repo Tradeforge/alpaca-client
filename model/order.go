@@ -55,23 +55,23 @@ type Order struct {
 	Symbol         string           `json:"symbol"`
 	AssetID        string           `json:"asset_id"`
 	AssetClass     string           `json:"asset_class"`
-	Notional       decimal.Decimal  `json:"notional"`
-	Quantity       decimal.Decimal  `json:"qty"`
-	FilledQuantity decimal.Decimal  `json:"filled_qty"`
-	FilledAvgPrice decimal.Decimal  `json:"filled_avg_price"`
+	Notional       *decimal.Decimal `json:"notional,omitempty"`
+	Quantity       *decimal.Decimal `json:"qty,omitempty"`
+	FilledQuantity *decimal.Decimal `json:"filled_qty,omitempty"`
+	FilledAvgPrice *decimal.Decimal `json:"filled_avg_price,omitempty"`
 	OrderClass     string           `json:"order_class"`
 	OrderType      string           `json:"order_type"`
 	TimeInForce    string           `json:"time_in_force"`
-	LimitPrice     *decimal.Decimal `json:"limit_price"`
-	StopPrice      *decimal.Decimal `json:"stop_price"`
+	LimitPrice     *decimal.Decimal `json:"limit_price,omitempty"`
+	StopPrice      *decimal.Decimal `json:"stop_price,omitempty"`
 	ExtendedHours  bool             `json:"extended_hours"`
 	Legs           []Order          `json:"legs"`
-	TrailPercent   *decimal.Decimal `json:"trail_percent"`
-	TrailPrice     *decimal.Decimal `json:"trail_price"`
-	HWM            string           `json:"hwm"`
-	Commission     decimal.Decimal  `json:"commission"`
-	SwapRate       decimal.Decimal  `json:"swap_rate"`
-	SwapFeeBPS     decimal.Decimal  `json:"swap_fee_bps"`
+	TrailPercent   *decimal.Decimal `json:"trail_percent,omitempty"`
+	TrailPrice     *decimal.Decimal `json:"trail_price,omitempty"`
+	HWM            *string          `json:"hwm,omitempty"`
+	Commission     *decimal.Decimal `json:"commission"`
+	SwapRate       *decimal.Decimal `json:"swap_rate"`
+	SwapFeeBPS     *decimal.Decimal `json:"swap_fee_bps"`
 	CreatedAt      time.Time        `json:"created_at"`
 	UpdatedAt      time.Time        `json:"updated_at"`
 	SubmittedAt    time.Time        `json:"submitted_at"`
