@@ -2,6 +2,8 @@ package model
 
 import (
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
 type GetLatestQuotesParams struct {
@@ -16,11 +18,11 @@ type GetLatestQuotesResponse struct {
 }
 
 type Quote struct {
-	AskPrice  float64   `json:"ap"`
-	AskSize   uint64    `json:"as"`
-	BidPrice  float64   `json:"bp"`
-	BidSize   uint64    `json:"bs"`
-	Timestamp time.Time `json:"t"`
+	AskPrice  decimal.Decimal `json:"ap"`
+	AskSize   uint64          `json:"as"`
+	BidPrice  decimal.Decimal `json:"bp"`
+	BidSize   uint64          `json:"bs"`
+	Timestamp time.Time       `json:"t"`
 }
 
 type GetLatestTradesParams struct {
@@ -35,10 +37,10 @@ type GetLatestTradesResponse struct {
 }
 
 type LatestTrade struct {
-	Price     float64   `json:"p"`
-	Size      uint64    `json:"s"`
-	Exchange  string    `json:"x"`
-	Timestamp time.Time `json:"t"`
+	Price     decimal.Decimal `json:"p"`
+	Size      uint64          `json:"s"`
+	Exchange  string          `json:"x"`
+	Timestamp time.Time       `json:"t"`
 }
 
 type GetSnapshotsParams struct {
@@ -77,14 +79,14 @@ type GetHistoricalBarsResponse struct {
 type HistoricalBarsAggregate map[string][]Bar
 
 type Bar struct {
-	Symbol                     string    `json:"S"`
-	Open                       float64   `json:"o"`
-	High                       float64   `json:"h"`
-	Low                        float64   `json:"l"`
-	Close                      float64   `json:"c"`
-	Volume                     uint64    `json:"v"`
-	VolumeWeightedAveragePrice float64   `json:"vw"`
-	Timestamp                  time.Time `json:"t"`
+	Symbol                     string          `json:"S"`
+	Open                       decimal.Decimal `json:"o"`
+	High                       decimal.Decimal `json:"h"`
+	Low                        decimal.Decimal `json:"l"`
+	Close                      decimal.Decimal `json:"c"`
+	Volume                     uint64          `json:"v"`
+	VolumeWeightedAveragePrice decimal.Decimal `json:"vw"`
+	Timestamp                  time.Time       `json:"t"`
 }
 
 type StreamStockUpdatesParams struct {

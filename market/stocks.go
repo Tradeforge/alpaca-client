@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/alpacahq/alpaca-trade-api-go/v3/marketdata/stream"
+	"github.com/shopspring/decimal"
 
 	"go.tradeforge.dev/alpaca/client"
 	"go.tradeforge.dev/alpaca/model"
@@ -59,12 +60,12 @@ func (sc *StocksClient) SubscribeToBarsEvents(
 		func(bar stream.Bar) {
 			if err := handle(ctx, &model.Bar{
 				Symbol:                     bar.Symbol,
-				Open:                       bar.Open,
-				High:                       bar.High,
-				Low:                        bar.Low,
-				Close:                      bar.Close,
+				Open:                       decimal.NewFromFloat(bar.Open),
+				High:                       decimal.NewFromFloat(bar.High),
+				Low:                        decimal.NewFromFloat(bar.Low),
+				Close:                      decimal.NewFromFloat(bar.Close),
 				Volume:                     bar.Volume,
-				VolumeWeightedAveragePrice: bar.VWAP,
+				VolumeWeightedAveragePrice: decimal.NewFromFloat(bar.VWAP),
 				Timestamp:                  bar.Timestamp,
 			}); err != nil {
 				// TODO: We might want to optionally unsubscribe from the stream here.
