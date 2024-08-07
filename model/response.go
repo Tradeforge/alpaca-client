@@ -2,7 +2,6 @@ package model
 
 import (
 	"encoding/json"
-	"fmt"
 )
 
 // BaseResponse has all possible attributes that any response can use. It's intended to be embedded in a domain specific
@@ -53,17 +52,4 @@ type PaginationHooks struct {
 
 func (p PaginationHooks) NextPage() string {
 	return p.NextURL
-}
-
-// ResponseError represents an API response with an error status code.
-type ResponseError struct {
-	BaseResponse
-
-	// An HTTP status code for unsuccessful requests.
-	StatusCode int
-}
-
-// Error returns the details of an error response.
-func (e *ResponseError) Error() string {
-	return fmt.Sprintf("bad status with code '%d': message '%s': request ID '%s'", e.StatusCode, e.Message, e.RequestID)
 }

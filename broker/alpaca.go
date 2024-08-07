@@ -21,6 +21,7 @@ type Client struct {
 	EventClient
 	OrderClient
 	MarketClient
+	TradingClient
 }
 
 // NewClient returns a new client with the specified API key and config.
@@ -41,5 +42,6 @@ func NewClient(
 		EventClient:   EventClient{Client: c},
 		OrderClient:   OrderClient{Client: c},
 		MarketClient:  MarketClient{Client: c},
+		TradingClient: TradingClient{Client: c},
 	}
 }

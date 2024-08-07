@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"go.tradeforge.dev/alpaca/encoder"
+	"go.tradeforge.dev/alpaca/errors"
 	"go.tradeforge.dev/alpaca/model"
 
 	"github.com/go-resty/resty/v2"
@@ -102,7 +103,7 @@ func (c *Client) CallURL(ctx context.Context, method, uri string, response any, 
 	}
 	req.SetQueryParamsFromValues(options.QueryParams)
 	req.SetHeaderMultiValues(options.Headers)
-	req.SetResult(response).SetError(&model.ResponseError{})
+	req.SetResult(response).SetError(&errors.ResponseError{})
 	req.SetHeader("Content-Type", "application/json")
 
 	_, err := c.executeRequest(ctx, req, method, uri, options.Trace)
@@ -212,7 +213,7 @@ func (c *Client) listenToSSE(ctx context.Context, path string, params any, opts 
 	req := c.HTTP.R().SetContext(ctx)
 	req.SetQueryParamsFromValues(options.QueryParams)
 	req.SetHeaderMultiValues(options.Headers)
-	req.SetError(&model.ResponseError{})
+	req.SetError(&errors.ResponseError{})
 	req.SetHeader("Accept", "text/event-stream")
 	req.SetHeader("Connection", "keep-alive")
 	req.SetHeader("Cache-Control", "no-cache")
@@ -237,11 +238,11 @@ func mergeOptions(opts ...model.RequestOption) *model.RequestOptions {
 	return options
 }
 
-func parseResponseError(res *resty.Response) *model.ResponseError {
-	if res == nil {
+func parseResponseError(res *resty.Response) *errors.ResponseError {
+	responseError, ok := errors.AsResponseError(res.Error())
+	if !ok || responseError == nil {
 		return nil
 	}
-	responseError := res.Error().(*model.ResponseError)
 	responseError.RequestID = res.Header().Get("X-Request-ID")
 	responseError.StatusCode = res.StatusCode()
 	b := struct {
