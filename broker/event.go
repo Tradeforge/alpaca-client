@@ -25,11 +25,12 @@ type AccountStatusUpdateHandler func(ctx context.Context, event *model.AccountSt
 // SubscribeToAccountStatusUpdateEvents subscribes to account status update SSE events.
 // The handler will be called for each event received.
 // This is a non-blocking call.
-func (c *EventClient) SubscribeToAccountStatusUpdateEvents(ctx context.Context, params *model.WatchParams, handler AccountStatusUpdateHandler, opts ...model.RequestOption) error {
+func (c *EventClient) SubscribeToAccountStatusUpdateEvents(ctx context.Context, params *model.WatchParams, reader client.EventReader, handler AccountStatusUpdateHandler, opts ...model.RequestOption) error {
 	return c.Subscribe(
 		ctx,
 		GetAccountStatusEventsPath,
 		params,
+		reader,
 		wrapAccountStatusUpdateHandler(handler),
 		opts...,
 	)
@@ -61,11 +62,12 @@ type TransferStatusUpdateEventHandler func(ctx context.Context, event *model.Tra
 // SubscribeToTransferStatusUpdateEvents subscribes to transfer status update SSE events.
 // The handler will be called for each event received.
 // This is a non-blocking call.
-func (c *EventClient) SubscribeToTransferStatusUpdateEvents(ctx context.Context, params *model.WatchParams, handler TransferStatusUpdateEventHandler, opts ...model.RequestOption) error {
+func (c *EventClient) SubscribeToTransferStatusUpdateEvents(ctx context.Context, params *model.WatchParams, reader client.EventReader, handler TransferStatusUpdateEventHandler, opts ...model.RequestOption) error {
 	return c.Subscribe(
 		ctx,
 		GetTransferStatusEventsPath,
 		params,
+		reader,
 		wrapTransferEventHandler(handler),
 		opts...,
 	)
@@ -97,11 +99,12 @@ type TradeEventHandler func(ctx context.Context, event *model.TradeEvent) error
 // SubscribeToTradeEvents subscribes to trade SSE events.
 // The handler will be called for each event received.
 // This is a non-blocking call.
-func (c *EventClient) SubscribeToTradeEvents(ctx context.Context, params *model.WatchParams, handler TradeEventHandler, opts ...model.RequestOption) error {
+func (c *EventClient) SubscribeToTradeEvents(ctx context.Context, params *model.WatchParams, reader client.EventReader, handler TradeEventHandler, opts ...model.RequestOption) error {
 	return c.Listen(
 		ctx,
 		GetTradeEventsPath,
 		params,
+		reader,
 		wrapTradeEventHandler(handler),
 		opts...,
 	)

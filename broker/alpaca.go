@@ -32,7 +32,6 @@ func NewClient(
 ) *Client {
 	c := client.New(
 		config.BaseURL,
-		reader,
 		logger,
 	)
 	c.SetBasicAuth(config.APIKey, config.APISecret)

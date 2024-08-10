@@ -36,24 +36,20 @@ type Event interface {
 type Client struct {
 	HTTP *resty.Client
 
-	encoder     *encoder.Encoder
-	eventReader EventReader
-
-	logger *slog.Logger
+	encoder *encoder.Encoder
+	logger  *slog.Logger
 }
 
 // New returns a new client with the specified API key and config.
 func New(
 	apiURL string,
-	reader EventReader,
 	logger *slog.Logger,
 ) *Client {
-	return newClient(apiURL, reader, logger)
+	return newClient(apiURL, logger)
 }
 
 func newClient(
 	apiURL string,
-	reader EventReader,
 	logger *slog.Logger,
 ) *Client {
 	c := resty.New()
@@ -62,10 +58,9 @@ func newClient(
 	c.SetHeader("Accept", "application/json")
 
 	return &Client{
-		HTTP:        c,
-		encoder:     encoder.New(),
-		eventReader: reader,
-		logger:      logger,
+		HTTP:    c,
+		encoder: encoder.New(),
+		logger:  logger,
 	}
 }
 
@@ -157,8 +152,10 @@ type EventStreamHandler func(ctx context.Context, event Event) error
 // Listen to an event data stream.
 // This is a blocking call that will continue to read from the stream until the context is canceled
 // or the watch is stopped.
-func (c *Client) Listen(ctx context.Context, path string, params any, handler EventStreamHandler, opts ...model.RequestOption) error {
-	evtChannel, errChannel, err := c.listenToSSE(ctx, path, params, opts...)
+//
+// NOTE: The event reader should not be shared between multiple listeners, otherwise, there might be unexpected parsing results.
+func (c *Client) Listen(ctx context.Context, path string, params any, reader EventReader, handler EventStreamHandler, opts ...model.RequestOption) error {
+	evtChannel, errChannel, err := c.listenToSSE(ctx, path, params, reader, opts...)
 	if err != nil {
 		return fmt.Errorf("initializing SSE stream: %w", err)
 	}
@@ -178,8 +175,10 @@ func (c *Client) Listen(ctx context.Context, path string, params any, handler Ev
 
 // Subscribe to an SSE event data stream.
 // This is a non-blocking call.
-func (c *Client) Subscribe(ctx context.Context, path string, params any, handler EventStreamHandler, opts ...model.RequestOption) error {
-	evtChannel, errChannel, err := c.listenToSSE(ctx, path, params, opts...)
+//
+// NOTE: The event reader should not be shared between multiple listeners, otherwise, there might be unexpected parsing results.
+func (c *Client) Subscribe(ctx context.Context, path string, params any, reader EventReader, handler EventStreamHandler, opts ...model.RequestOption) error {
+	evtChannel, errChannel, err := c.listenToSSE(ctx, path, params, reader, opts...)
 	if err != nil {
 		return fmt.Errorf("initializing SSE stream: %w", err)
 	}
@@ -203,7 +202,7 @@ func (c *Client) Subscribe(ctx context.Context, path string, params any, handler
 	return nil
 }
 
-func (c *Client) listenToSSE(ctx context.Context, path string, params any, opts ...model.RequestOption) (<-chan Event, <-chan error, error) {
+func (c *Client) listenToSSE(ctx context.Context, path string, params any, reader EventReader, opts ...model.RequestOption) (<-chan Event, <-chan error, error) {
 	uri, err := c.encoder.EncodeParams(path, params)
 	if err != nil {
 		return nil, nil, err
@@ -225,7 +224,7 @@ func (c *Client) listenToSSE(ctx context.Context, path string, params any, opts 
 	if err != nil {
 		return nil, nil, err
 	}
-	evtChannel, errChannel := c.eventReader.Listen(ctx, res.RawBody())
+	evtChannel, errChannel := reader.Listen(ctx, res.RawBody())
 	return evtChannel, errChannel, nil
 }
 

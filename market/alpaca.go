@@ -50,7 +50,6 @@ func NewClient(
 ) *Client {
 	c := client.New(
 		config.BaseURL,
-		nil,
 		logger,
 	)
 	c.SetHeader(apiKeyHeader, config.APIKey)
