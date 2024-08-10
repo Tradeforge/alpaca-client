@@ -27,7 +27,6 @@ type Client struct {
 // NewClient returns a new client with the specified API key and config.
 func NewClient(
 	config Config,
-	reader client.EventReader,
 	logger *slog.Logger,
 ) *Client {
 	c := client.New(

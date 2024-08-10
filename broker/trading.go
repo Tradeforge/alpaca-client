@@ -21,8 +21,7 @@ func (tc *TradingClient) GetOpenPositionBySymbol(ctx context.Context, params *mo
 	res := &model.GetOpenPositionResponse{}
 	err := tc.Call(ctx, http.MethodGet, GetOpenPositionBySymbolPath, params, res, opts...)
 	if responseErr, ok := errors.AsResponseError(err); ok {
-		switch responseErr.StatusCode {
-		case http.StatusNotFound:
+		if responseErr.StatusCode == http.StatusNotFound {
 			return nil, errors.NewPositionFoundError()
 		}
 	}
