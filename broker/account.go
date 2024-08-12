@@ -9,10 +9,11 @@ import (
 )
 
 const (
-	CreateAccountPath     = "/v1/accounts"
-	ListAccountsPath      = "/v1/accounts"
-	GetAccountPath        = "/v1/accounts/:id"
-	GetAccountHistoryPath = "/v1/trading/accounts/:id/account/portfolio/history"
+	CreateAccountPath        = "/v1/accounts"
+	ListAccountsPath         = "/v1/accounts"
+	GetAccountPath           = "/v1/accounts/:id"
+	GetAccountHistoryPath    = "/v1/trading/accounts/:id/account/portfolio/history"
+	GetAccountTradingDetails = "/v1/trading/accounts/:id/account"
 )
 
 // AccountClient is a client for the broker account API.
@@ -35,6 +36,12 @@ func (ac *AccountClient) ListAccounts(ctx context.Context, params *model.ListAcc
 func (ac *AccountClient) GetAccount(ctx context.Context, params *model.GetAccountParams, opts ...model.RequestOption) (*model.GetAccountResponse, error) {
 	res := &model.GetAccountResponse{}
 	err := ac.Call(ctx, http.MethodGet, GetAccountPath, params, res, opts...)
+	return res, err
+}
+
+func (ac *AccountClient) GetAccountTradingDetails(ctx context.Context, params *model.GetAccountTradingDetailsParams, opts ...model.RequestOption) (*model.GetAccountTradingDetailsResponse, error) {
+	res := &model.GetAccountTradingDetailsResponse{}
+	err := ac.Call(ctx, http.MethodGet, GetAccountTradingDetails, params, res, opts...)
 	return res, err
 }
 
