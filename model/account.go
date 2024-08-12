@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 )
 
 type CreateAccountRequest struct {
@@ -29,6 +30,35 @@ type Account struct {
 	Agreements     []Agreement     `json:"agreements"`
 	Documents      []Document      `json:"documents"`
 	TrustedContact *TrustedContact `json:"trusted_contact"`
+
+	BalanceUSD AccountBalanceUSD `json:"usd"`
+}
+
+type AccountBalanceUSD struct {
+	BuyingPower               decimal.Decimal `json:"buying_power"`
+	RegtBuyingPower           decimal.Decimal `json:"regt_buying_power"`
+	DaytradingBuyingPower     decimal.Decimal `json:"daytrading_buying_power"`
+	OptionsBuyingPower        decimal.Decimal `json:"options_buying_power"`
+	Cash                      decimal.Decimal `json:"cash"`
+	CashWithdrawable          decimal.Decimal `json:"cash_withdrawable"`
+	CashTransferable          decimal.Decimal `json:"cash_transferable"`
+	PendingTransferOut        decimal.Decimal `json:"pending_transfer_out"`
+	PortfolioValue            decimal.Decimal `json:"portfolio_value"`
+	Equity                    decimal.Decimal `json:"equity"`
+	LongMarketValue           decimal.Decimal `json:"long_market_value"`
+	ShortMarketValue          decimal.Decimal `json:"short_market_value"`
+	InitialMargin             decimal.Decimal `json:"initial_margin"`
+	MaintenanceMargin         decimal.Decimal `json:"maintenance_margin"`
+	LastMaintenanceMargin     decimal.Decimal `json:"last_maintenance_margin"`
+	Sma                       decimal.Decimal `json:"sma"`
+	LastEquity                decimal.Decimal `json:"last_equity"`
+	LastLongMarketValue       decimal.Decimal `json:"last_long_market_value"`
+	LastShortMarketValue      decimal.Decimal `json:"last_short_market_value"`
+	LastCash                  decimal.Decimal `json:"last_cash"`
+	LastBuyingPower           decimal.Decimal `json:"last_buying_power"`
+	LastRegtBuyingPower       decimal.Decimal `json:"last_regt_buying_power"`
+	LastDaytradingBuyingPower decimal.Decimal `json:"last_daytrading_buying_power"`
+	LastOptionsBuyingPower    decimal.Decimal `json:"last_options_buying_power"`
 }
 
 type AccountStatus string
