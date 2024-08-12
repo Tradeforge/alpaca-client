@@ -249,7 +249,7 @@ type GetAccountResponse struct {
 }
 
 type GetAccountTradingDetailsParams struct {
-	AccountID string `path:"account_id,required"`
+	AccountID string `path:"id,required"`
 }
 
 type GetAccountTradingDetailsResponse struct {
