@@ -119,7 +119,7 @@ type AccountTradingDetails struct {
 	LastMaintenanceMargin     decimal.Decimal `json:"last_maintenance_margin"`
 	Sma                       decimal.Decimal `json:"sma"`
 	DaytradeCount             int             `json:"daytrade_count"`
-	BalanceAsof               decimal.Decimal `json:"balance_asof"`
+	BalanceAsof               string          `json:"balance_asof"`
 	PreviousClose             time.Time       `json:"previous_close"`
 	LastLongMarketValue       decimal.Decimal `json:"last_long_market_value"`
 	LastShortMarketValue      decimal.Decimal `json:"last_short_market_value"`
