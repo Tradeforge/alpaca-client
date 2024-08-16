@@ -74,7 +74,7 @@ type Order struct {
 	SwapFeeBPS     *decimal.Decimal `json:"swap_fee_bps"`
 	CreatedAt      time.Time        `json:"created_at"`
 	UpdatedAt      time.Time        `json:"updated_at"`
-	SubmittedAt    time.Time        `json:"submitted_at"`
+	SubmittedAt    *time.Time       `json:"submitted_at"`
 	FilledAt       *time.Time       `json:"filled_at"`
 	ExpiredAt      *time.Time       `json:"expired_at"`
 	CancelledAt    *time.Time       `json:"cancelled_at"`
