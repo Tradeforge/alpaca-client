@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	GetTradeEventsPath          = "/v2beta1/events/trades"
+	GetOrderEventsPath          = "/v2beta1/events/trades"
 	GetTransferStatusEventsPath = "/v1/events/transfers/status"
 	GetAccountStatusEventsPath  = "/v1/events/accounts/status"
 )
@@ -94,39 +94,39 @@ func parseTransferEvent(event client.Event) (*model.TransferStatusUpdateEvent, e
 	return &e, nil
 }
 
-type TradeEventHandler func(ctx context.Context, event *model.TradeEvent) error
+type OrderEventHandler func(ctx context.Context, event *model.OrderEvent) error
 
-// SubscribeToTradeEvents subscribes to trade SSE events.
+// SubscribeToOrderEvents subscribes to order SSE events.
 // The handler will be called for each event received.
 // This is a non-blocking call.
-func (c *EventClient) SubscribeToTradeEvents(ctx context.Context, params *model.WatchParams, reader client.EventReader, handler TradeEventHandler, opts ...model.RequestOption) error {
+func (c *EventClient) SubscribeToOrderEvents(ctx context.Context, params *model.WatchParams, reader client.EventReader, handler OrderEventHandler, opts ...model.RequestOption) error {
 	return c.Listen(
 		ctx,
-		GetTradeEventsPath,
+		GetOrderEventsPath,
 		params,
 		reader,
-		wrapTradeEventHandler(handler),
+		wrapOrderEventHandler(handler),
 		opts...,
 	)
 }
 
-func wrapTradeEventHandler(handler TradeEventHandler) client.EventStreamHandler {
+func wrapOrderEventHandler(handler OrderEventHandler) client.EventStreamHandler {
 	return func(ctx context.Context, event client.Event) error {
 		if event.IsComment() {
 			return nil
 		}
-		e, err := parseTradeEvent(event)
+		e, err := parseOrderEvent(event)
 		if err != nil {
-			return fmt.Errorf("parsing trade event: %w", err)
+			return fmt.Errorf("parsing order event: %w", err)
 		}
 		return handler(ctx, e)
 	}
 }
 
-func parseTradeEvent(event client.Event) (*model.TradeEvent, error) {
-	e := model.TradeEvent{}
+func parseOrderEvent(event client.Event) (*model.OrderEvent, error) {
+	e := model.OrderEvent{}
 	if err := json.Unmarshal(event.GetData(), &e); err != nil {
-		return nil, fmt.Errorf("unmarshalling trade event: %w", err)
+		return nil, fmt.Errorf("unmarshalling order event: %w", err)
 	}
 	return &e, nil
 }

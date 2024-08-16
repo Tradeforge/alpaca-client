@@ -38,12 +38,12 @@ type AccountStatusUpdateEvent struct {
 	TradingBlocked      bool                       `json:"trading_blocked"`
 }
 
-// TradeEvent represents a trade event.
-type TradeEvent struct {
+// OrderEvent represents an order event.
+type OrderEvent struct {
 	ID          string         `json:"event_id"`
 	AccountID   uuid.UUID      `json:"account_id"`
 	ExecutionID string         `json:"execution_id"`
-	Event       TradeEventType `json:"event"`
+	Event       OrderEventType `json:"event"`
 	Order       Order          `json:"order"`
 	// The average price per share at which the order was filled.
 	Price *string `json:"price"`
@@ -54,52 +54,52 @@ type TradeEvent struct {
 	Timestamp        time.Time `json:"timestamp"`
 }
 
-// TradeEventType represents a trade event.
+// OrderEventType represents an order event type.
 //
 // See https://github.com/alpacahq/alpaca-docs/blob/master/content/api-references/broker-api/events.md#trade-events.
-type TradeEventType string
+type OrderEventType string
 
 const (
 	/* Common events. */
 
-	// TradeEventNew is sent when an order has been routed to exchanges for execution.
-	TradeEventNew TradeEventType = "new"
-	// TradeEventFill is sent when your order has been completely filled.
-	TradeEventFill TradeEventType = "fill"
-	// TradeEventPartialFill is sent when a number of shares less than the total remaining quantity on your order has been filled.
-	TradeEventPartialFill TradeEventType = "partial_fill"
-	// TradeEventExpired is sent when an order has reached the end of its lifespan, as determined by the order’s time in force value.
-	TradeEventExpired TradeEventType = "expired"
-	// TradeEventReplaced is sent when your requested replacement of an order is processed.
-	TradeEventReplaced TradeEventType = "replaced"
-	// TradeEventDoneForDay is sent when the order is done executing for the day, and will not receive further updates until the next trading day.
-	TradeEventDoneForDay TradeEventType = "done_for_day"
-	// TradeEventCanceled is sent when your requested cancellation of an order is processed.
-	TradeEventCanceled TradeEventType = "canceled"
+	// OrderEventNew is sent when an order has been routed to exchanges for execution.
+	OrderEventNew OrderEventType = "new"
+	// OrderEventFill is sent when your order has been completely filled.
+	OrderEventFill OrderEventType = "fill"
+	// OrderEventPartialFill is sent when a number of shares less than the total remaining quantity on your order has been filled.
+	OrderEventPartialFill OrderEventType = "partial_fill"
+	// OrderEventExpired is sent when an order has reached the end of its lifespan, as determined by the order’s time in force value.
+	OrderEventExpired OrderEventType = "expired"
+	// OrderEventReplaced is sent when your requested replacement of an order is processed.
+	OrderEventReplaced OrderEventType = "replaced"
+	// OrderEventDoneForDay is sent when the order is done executing for the day, and will not receive further updates until the next trading day.
+	OrderEventDoneForDay OrderEventType = "done_for_day"
+	// OrderEventCanceled is sent when your requested cancellation of an order is processed.
+	OrderEventCanceled OrderEventType = "canceled"
 
 	/* Rarer events */
 
-	// TradeEventRejected is sent when your order has been rejected.
-	TradeEventRejected TradeEventType = "rejected"
-	// TradeEventPendingNew is sent when the order has been received by Alpaca and routed to the exchanges, but has not yet been accepted for execution.
-	TradeEventPendingNew TradeEventType = "pending_new"
-	// TradeEventStopped is sent when your order has been stopped, and a trade is guaranteed for the order, usually at a stated price or better, but has not yet occurred.
-	TradeEventStopped TradeEventType = "stopped"
-	// TradeEventPendingCancel is sent when the order is awaiting cancellation. Most cancellations will occur without the order entering this state.
-	TradeEventPendingCancel TradeEventType = "pending_cancel"
-	// TradeEventPendingReplace is sent when the order is awaiting replacement.
-	TradeEventPendingReplace TradeEventType = "pending_replace"
-	// TradeEventCalculated is sent when the order has been completed for the day - it is either filled or done_for_day - but remaining settlement calculations are still pending.
-	TradeEventCalculated TradeEventType = "calculated"
-	// TradeEventSuspended is sent when the order has been suspended and is not eligible for trading.
-	TradeEventSuspended TradeEventType = "suspended"
-	// TradeEventOrderReplaceRejected is sent when the order replace has been rejected.
-	TradeEventOrderReplaceRejected TradeEventType = "order_replace_rejected"
-	// TradeEventOrderCancelRejected is sent when the order cancel has been rejected.
-	TradeEventOrderCancelRejected TradeEventType = "order_cancel_rejected"
+	// OrderEventRejected is sent when your order has been rejected.
+	OrderEventRejected OrderEventType = "rejected"
+	// OrderEventPendingNew is sent when the order has been received by Alpaca and routed to the exchanges, but has not yet been accepted for execution.
+	OrderEventPendingNew OrderEventType = "pending_new"
+	// OrderEventStopped is sent when your order has been stopped, and a trade is guaranteed for the order, usually at a stated price or better, but has not yet occurred.
+	OrderEventStopped OrderEventType = "stopped"
+	// OrderEventPendingCancel is sent when the order is awaiting cancellation. Most cancellations will occur without the order entering this state.
+	OrderEventPendingCancel OrderEventType = "pending_cancel"
+	// OrderEventPendingReplace is sent when the order is awaiting replacement.
+	OrderEventPendingReplace OrderEventType = "pending_replace"
+	// OrderEventCalculated is sent when the order has been completed for the day - it is either filled or done_for_day - but remaining settlement calculations are still pending.
+	OrderEventCalculated OrderEventType = "calculated"
+	// OrderEventSuspended is sent when the order has been suspended and is not eligible for trading.
+	OrderEventSuspended OrderEventType = "suspended"
+	// OrderEventOrderReplaceRejected is sent when the order replace has been rejected.
+	OrderEventOrderReplaceRejected OrderEventType = "order_replace_rejected"
+	// OrderEventOrderCancelRejected is sent when the order cancel has been rejected.
+	OrderEventOrderCancelRejected OrderEventType = "order_cancel_rejected"
 )
 
-func (e TradeEventType) String() string {
+func (e OrderEventType) String() string {
 	return string(e)
 }
 
