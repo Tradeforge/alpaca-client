@@ -1,8 +1,10 @@
 package client
 
 import (
+	"bufio"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -10,8 +12,9 @@ import (
 	"time"
 
 	"go.tradeforge.dev/alpaca/encoder"
-	"go.tradeforge.dev/alpaca/errors"
+	alpacaerrors "go.tradeforge.dev/alpaca/errors"
 	"go.tradeforge.dev/alpaca/model"
+	"go.tradeforge.dev/alpaca/sse"
 
 	"github.com/go-resty/resty/v2"
 )
@@ -21,16 +24,6 @@ const clientVersion = "v0.0.0"
 const (
 	DefaultClientTimeout = 10 * time.Second
 )
-
-type EventReader interface {
-	Listen(ctx context.Context, stream io.Reader) (<-chan Event, <-chan error)
-}
-
-type Event interface {
-	GetData() []byte
-	GetTimestamp() time.Time
-	IsComment() bool
-}
 
 // Client defines an HTTP client for the REST API.
 type Client struct {
@@ -98,7 +91,7 @@ func (c *Client) CallURL(ctx context.Context, method, uri string, response any, 
 	}
 	req.SetQueryParamsFromValues(options.QueryParams)
 	req.SetHeaderMultiValues(options.Headers)
-	req.SetResult(response).SetError(&errors.ResponseError{})
+	req.SetResult(response).SetError(&alpacaerrors.ResponseError{})
 	req.SetHeader("Content-Type", "application/json")
 
 	_, err := c.executeRequest(ctx, req, method, uri, options.Trace)
@@ -147,27 +140,46 @@ func (c *Client) executeRequest(
 	return res, nil
 }
 
-type EventStreamHandler func(ctx context.Context, event Event) error
+type EventStreamHandler func(ctx context.Context, event *sse.Event) error
 
 // Listen to an event data stream.
 // This is a blocking call that will continue to read from the stream until the context is canceled
 // or the watch is stopped.
 //
 // NOTE: The event reader should not be shared between multiple listeners, otherwise, there might be unexpected parsing results.
-func (c *Client) Listen(ctx context.Context, path string, params any, reader EventReader, handler EventStreamHandler, opts ...model.RequestOption) error {
-	evtChannel, errChannel, err := c.listenToSSE(ctx, path, params, reader, opts...)
+func (c *Client) Listen(ctx context.Context, path string, params any, handler EventStreamHandler, opts ...model.RequestOption) error {
+	r, err := c.listenToSSE(ctx, path, params, opts...)
 	if err != nil {
 		return fmt.Errorf("initializing SSE stream: %w", err)
 	}
+	defer func() {
+		if err := r.Close(); err != nil {
+			c.logger.Error("closing stream", slog.Any("error", err))
+		}
+	}()
+
+	evtChannel, errChannel := make(chan *sse.Event, 1), make(chan error, 1)
+	go c.startReadingSSE(r, evtChannel, errChannel)
 	for {
 		select {
 		case <-ctx.Done():
-			return fmt.Errorf("context cancelled: %w", ctx.Err())
+			c.logger.Error("context cancelled", slog.Any("error", ctx.Err()))
+			return nil
 		case err := <-errChannel:
-			return fmt.Errorf("reading from stream: %w", err)
-		case evt := <-evtChannel:
-			if err := handler(ctx, evt); err != nil {
-				return fmt.Errorf("handling event: %w", err)
+			c.logger.Error("reading from stream", slog.Any("error", err))
+			return err
+		case event := <-evtChannel:
+			if event.Retry != 0 {
+				// TODO: Handle reconnection time.
+				c.logger.Debug("received retry event", slog.Int("retry", event.Retry))
+			}
+			if event.IsComment() {
+				c.logger.Debug("received comment", slog.String("comment", event.Comment))
+				continue
+			}
+			if err := handler(ctx, event); err != nil {
+				c.logger.Error("handling event", slog.Any("error", err))
+				return err
 			}
 		}
 	}
@@ -177,42 +189,63 @@ func (c *Client) Listen(ctx context.Context, path string, params any, reader Eve
 // This is a non-blocking call.
 //
 // NOTE: The event reader should not be shared between multiple listeners, otherwise, there might be unexpected parsing results.
-func (c *Client) Subscribe(ctx context.Context, path string, params any, reader EventReader, handler EventStreamHandler, opts ...model.RequestOption) error {
-	evtChannel, errChannel, err := c.listenToSSE(ctx, path, params, reader, opts...)
+func (c *Client) Subscribe(ctx context.Context, path string, params any, handler EventStreamHandler, opts ...model.RequestOption) error {
+	r, err := c.listenToSSE(ctx, path, params, opts...)
 	if err != nil {
 		return fmt.Errorf("initializing SSE stream: %w", err)
 	}
+	defer func() {
+		if err := r.Close(); err != nil {
+			c.logger.Error("closing stream", slog.Any("error", err))
+		}
+	}()
 
+	evtChannel, errChannel := make(chan *sse.Event, 1), make(chan error, 1)
+	go c.startReadingSSE(r, evtChannel, errChannel)
 	go func() {
+	L:
 		for {
 			select {
 			case <-ctx.Done():
 				c.logger.Error("context cancelled", slog.Any("error", ctx.Err()))
-				return
+				break L
 			case err := <-errChannel:
-				c.logger.Error("error reading from stream", slog.Any("error", err))
-				return
-			case evt := <-evtChannel:
-				if err := handler(ctx, evt); err != nil {
-					return // Do not log. The handler should log the error.
+				if errors.Is(err, io.EOF) {
+					continue
+				}
+				c.logger.Error("reading from stream", slog.Any("error", err))
+				break L
+			case event := <-evtChannel:
+				if event.Retry != 0 {
+					// TODO: Handle reconnection time.
+					c.logger.Debug("received retry event", slog.Int("retry", event.Retry))
+				}
+				if event.IsComment() {
+					c.logger.Debug("received comment", slog.String("comment", event.Comment))
+					continue
+				}
+				if err := handler(ctx, event); err != nil {
+					c.logger.Error("handling event", slog.Any("error", err))
+					break L
 				}
 			}
 		}
 	}()
+
 	return nil
 }
 
-func (c *Client) listenToSSE(ctx context.Context, path string, params any, reader EventReader, opts ...model.RequestOption) (<-chan Event, <-chan error, error) {
+func (c *Client) listenToSSE(ctx context.Context, path string, params any, opts ...model.RequestOption) (io.ReadCloser, error) {
 	uri, err := c.encoder.EncodeParams(path, params)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	options := mergeOptions(opts...)
 
 	req := c.HTTP.R().SetContext(ctx)
 	req.SetQueryParamsFromValues(options.QueryParams)
 	req.SetHeaderMultiValues(options.Headers)
-	req.SetError(&errors.ResponseError{})
+	req.SetError(&alpacaerrors.ResponseError{})
 	req.SetHeader("Accept", "text/event-stream")
 	req.SetHeader("Connection", "keep-alive")
 	req.SetHeader("Cache-Control", "no-cache")
@@ -222,10 +255,33 @@ func (c *Client) listenToSSE(ctx context.Context, path string, params any, reade
 
 	res, err := c.executeRequest(ctx, req, http.MethodGet, uri, options.Trace)
 	if err != nil {
-		return nil, nil, err
+		return nil, fmt.Errorf("executing request: %w", err)
 	}
-	evtChannel, errChannel := reader.Listen(ctx, res.RawBody())
-	return evtChannel, errChannel, nil
+	return res.RawBody(), nil
+}
+
+func (c *Client) startReadingSSE(r io.ReadCloser, evtCh chan<- *sse.Event, errCh chan<- error) {
+	parser := sse.NewParser()
+	reader := bufio.NewReader(r)
+
+	go func() {
+		for {
+			l, err := reader.ReadString('\n')
+			if err != nil {
+				errCh <- fmt.Errorf("reading message: %w", err)
+				return
+			}
+			evt, err := parser.ParseEvent([]byte(l))
+			if err != nil {
+				errCh <- fmt.Errorf("parsing event: %w", err)
+				return
+			}
+			if evt.IsEmpty() {
+				continue
+			}
+			evtCh <- evt
+		}
+	}()
 }
 
 func mergeOptions(opts ...model.RequestOption) *model.RequestOptions {
@@ -237,8 +293,8 @@ func mergeOptions(opts ...model.RequestOption) *model.RequestOptions {
 	return options
 }
 
-func parseResponseError(res *resty.Response) *errors.ResponseError {
-	responseError, ok := errors.AsResponseError(res.Error())
+func parseResponseError(res *resty.Response) *alpacaerrors.ResponseError {
+	responseError, ok := alpacaerrors.AsResponseError(res.Error())
 	if !ok || responseError == nil {
 		return nil
 	}
