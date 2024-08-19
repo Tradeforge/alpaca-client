@@ -31,8 +31,8 @@ type Config struct {
 type StreamConfig struct {
 	BaseURL              string         `env:"ALPACA_MARKET_STREAM_API_URL" validate:"required,url"`
 	Feed                 string         `env:"ALPACA_MARKET_STREAM_FEED" validate:"required"`
-	ReconnectMaxAttempts *int           `env:"ALPACA_MARKET_STREAM_RECONNECT_MAX_ATTEMPTS,default=5"`
-	ReconnectInterval    *time.Duration `env:"ALPACA_MARKET_STREAM_RECONNECT_INTERVAL,default=5s"`
+	ReconnectMaxAttempts *int           `env:"ALPACA_MARKET_STREAM_RECONNECT_MAX_ATTEMPTS" envDefault:"5"`
+	ReconnectInterval    *time.Duration `env:"ALPACA_MARKET_STREAM_RECONNECT_INTERVAL" envDefault:"5s"`
 }
 
 // Client defines a client for the Alpaca Broker API.
