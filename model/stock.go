@@ -62,13 +62,14 @@ type Snapshot struct {
 }
 
 type GetHistoricalBarsParams struct {
-	Symbols   string    `query:"symbols,required"`
-	Timeframe string    `query:"timeframe,required"`
-	Start     time.Time `query:"start" validate:"required"`
-	End       time.Time `query:"end"`
-	Feed      *string   `query:"feed,omitempty"`
-	Currency  *string   `query:"currency,omitempty"`
-	PageToken *string   `query:"page_token,omitempty"`
+	Symbols    string    `query:"symbols,required"`
+	Timeframe  string    `query:"timeframe,required"`
+	Start      time.Time `query:"start" validate:"required"`
+	End        time.Time `query:"end"`
+	Feed       *string   `query:"feed,omitempty"`
+	Currency   *string   `query:"currency,omitempty"`
+	Adjustment *string   `query:"adjustment,omitempty"`
+	PageToken  *string   `query:"page_token,omitempty"`
 }
 
 type GetHistoricalBarsResponse struct {
