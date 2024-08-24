@@ -66,6 +66,7 @@ type GetHistoricalBarsParams struct {
 	Timeframe  string    `query:"timeframe,required"`
 	Start      time.Time `query:"start" validate:"required"`
 	End        time.Time `query:"end"`
+	Limit      *int      `query:"limit,omitempty"`
 	Feed       *string   `query:"feed,omitempty"`
 	Currency   *string   `query:"currency,omitempty"`
 	Adjustment *string   `query:"adjustment,omitempty"`
