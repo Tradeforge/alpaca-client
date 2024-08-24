@@ -9,13 +9,20 @@ import (
 )
 
 const (
-	CreateOrderPath = "/v1/trading/accounts/:id/orders"
-	GetOrderPath    = "/v1/trading/accounts/:id/orders/:order_id"
-	ListOrdersPath  = "/v1/trading/accounts/:id/orders"
+	EstimateOrderPath = "/v1/trading/accounts/:id/orders/estimation"
+	CreateOrderPath   = "/v1/trading/accounts/:id/orders"
+	GetOrderPath      = "/v1/trading/accounts/:id/orders/:order_id"
+	ListOrdersPath    = "/v1/trading/accounts/:id/orders"
 )
 
 type OrderClient struct {
 	*client.Client
+}
+
+func (oc *OrderClient) EstimateOrder(ctx context.Context, params *model.CreateOrderParams, data *model.CreateOrderRequest, opts ...model.RequestOption) (*model.CreateOrderResponse, error) {
+	res := &model.CreateOrderResponse{}
+	err := oc.Call(ctx, http.MethodPost, EstimateOrderPath, params, res, append(opts, model.Body(data))...)
+	return res, err
 }
 
 func (oc *OrderClient) CreateOrder(ctx context.Context, params *model.CreateOrderParams, data *model.CreateOrderRequest, opts ...model.RequestOption) (*model.CreateOrderResponse, error) {
