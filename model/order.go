@@ -69,7 +69,8 @@ type Order struct {
 	TrailPercent   *decimal.Decimal `json:"trail_percent,omitempty"`
 	TrailPrice     *decimal.Decimal `json:"trail_price,omitempty"`
 	HWM            *string          `json:"hwm,omitempty"`
-	Commission     *decimal.Decimal `json:"commission"`
+	Commission     decimal.Decimal  `json:"commission"`
+	CommissionType *string          `json:"commission_type"`
 	SwapRate       *decimal.Decimal `json:"swap_rate"`
 	SwapFeeBPS     *decimal.Decimal `json:"swap_fee_bps"`
 	CreatedAt      time.Time        `json:"created_at"`
