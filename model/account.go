@@ -295,3 +295,23 @@ type AccountAdminConfigurations struct {
 	MaxMarginMultiplier      int    `json:"max_margin_multiplier"`
 	AcctDailyTransferLimit   string `json:"acct_daily_transfer_limit"`
 }
+
+type GetOnfidoSDKTokenParams struct {
+	AccountID string  `path:"id,required"`
+	Referrer  *string `query:"referrer,omitempty"`
+	Platform  *string `query:"platform,omitempty"`
+}
+
+type GetOnfidoSDKTokenResponse struct {
+	Token string `json:"token"`
+}
+
+type UpdateOnfidoSDKOutcomeParams struct {
+	AccountID string `path:"id,required"`
+}
+
+type UpdateOnfidoSDKOutcomeRequest struct {
+	Token   string  `json:"token"`
+	Outcome string  `json:"outcome"`
+	Reason  *string `json:"reason"`
+}

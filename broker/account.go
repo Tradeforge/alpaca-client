@@ -9,11 +9,13 @@ import (
 )
 
 const (
-	CreateAccountPath        = "/v1/accounts"
-	ListAccountsPath         = "/v1/accounts"
-	GetAccountPath           = "/v1/accounts/:id"
-	GetAccountHistoryPath    = "/v1/trading/accounts/:id/account/portfolio/history"
-	GetAccountTradingDetails = "/v1/trading/accounts/:id/account"
+	CreateAccountPath          = "/v1/accounts"
+	ListAccountsPath           = "/v1/accounts"
+	GetAccountPath             = "/v1/accounts/:id"
+	GetAccountHistoryPath      = "/v1/trading/accounts/:id/account/portfolio/history"
+	GetAccountTradingDetails   = "/v1/trading/accounts/:id/account"
+	GetOnfidoSDKTokenPath      = "/v1/accounts/:id/onfido/sdk/tokens"
+	UpdateOnfidoSDKOutcomePath = "/v1/accounts/:id/onfido/sdk"
 )
 
 // AccountClient is a client for the broker account API.
@@ -49,4 +51,15 @@ func (ac *AccountClient) GetAccountHistory(ctx context.Context, params *model.Ge
 	res := &model.GetAccountHistoryResponse{}
 	err := ac.Call(ctx, http.MethodGet, GetAccountHistoryPath, params, res, opts...)
 	return res, err
+}
+
+func (ac *AccountClient) GetOnfidoSDKToken(ctx context.Context, params *model.GetOnfidoSDKTokenParams, opts ...model.RequestOption) (*model.GetOnfidoSDKTokenResponse, error) {
+	res := &model.GetOnfidoSDKTokenResponse{}
+	err := ac.Call(ctx, http.MethodGet, GetOnfidoSDKTokenPath, params, res, opts...)
+	return res, err
+}
+
+func (ac *AccountClient) UpdateOnfidoSDKOutcome(ctx context.Context, params *model.UpdateOnfidoSDKOutcomeParams, data *model.UpdateOnfidoSDKOutcomeRequest, opts ...model.RequestOption) error {
+	err := ac.Call(ctx, http.MethodPatch, UpdateOnfidoSDKOutcomePath, params, http.NoBody, append(opts, model.Body(data))...)
+	return err
 }
