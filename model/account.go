@@ -173,12 +173,12 @@ type Identity struct {
 	CountryOfTaxResidence string  `json:"country_of_tax_residence"`
 
 	FundingSource     []string `json:"funding_source"`
-	AnnualIncomeMin   *int     `json:"annual_income_min"`
-	AnnualIncomeMax   *int     `json:"annual_income_max"`
-	LiquidNetWorthMin *int     `json:"liguid_net_worth_min"`
-	LiquidNetWorthMax *int     `json:"liquid_net_worth_max"`
-	TotalNetWorthMin  *int     `json:"total_net_worth_min"`
-	TotalNetWorthMax  *int     `json:"total_net_worth_max"`
+	AnnualIncomeMin   *int64   `json:"annual_income_min"`
+	AnnualIncomeMax   *int64   `json:"annual_income_max"`
+	LiquidNetWorthMin *int64   `json:"liguid_net_worth_min"`
+	LiquidNetWorthMax *int64   `json:"liquid_net_worth_max"`
+	TotalNetWorthMin  *int64   `json:"total_net_worth_min"`
+	TotalNetWorthMax  *int64   `json:"total_net_worth_max"`
 
 	VisaType               *string    `json:"visa_type"`
 	VisaExpirationDate     *time.Time `json:"visa_expiration_date"`
