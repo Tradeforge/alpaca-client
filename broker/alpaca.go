@@ -18,6 +18,7 @@ type Client struct {
 	*client.Client
 
 	AccountClient
+	FundingClient
 	EventClient
 	OrderClient
 	MarketClient
@@ -37,6 +38,7 @@ func NewClient(
 	return &Client{
 		Client:        c,
 		AccountClient: AccountClient{Client: c},
+		FundingClient: FundingClient{Client: c},
 		EventClient:   EventClient{Client: c},
 		OrderClient:   OrderClient{Client: c},
 		MarketClient:  MarketClient{Client: c},

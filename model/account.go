@@ -89,7 +89,7 @@ const (
 )
 
 type AccountTradingDetails struct {
-	AccountID                 string          `json:"id"`
+	AccountID                 uuid.UUID       `json:"id"`
 	AccountNumber             string          `json:"account_number"`
 	Status                    string          `json:"status"`
 	Currency                  string          `json:"currency"`
@@ -241,7 +241,7 @@ type ListAccountsParams struct {
 type ListAccountsResponse = []Account
 
 type GetAccountParams struct {
-	ID string `path:"id,required"`
+	AccountID string `path:"account_id,required"`
 }
 
 type GetAccountResponse struct {
@@ -249,7 +249,7 @@ type GetAccountResponse struct {
 }
 
 type GetAccountTradingDetailsParams struct {
-	AccountID string `path:"id,required"`
+	AccountID string `path:"account_id,required"`
 }
 
 type GetAccountTradingDetailsResponse struct {
@@ -257,7 +257,7 @@ type GetAccountTradingDetailsResponse struct {
 }
 
 type GetAccountHistoryParams struct {
-	ID        string  `path:"id,required"`
+	AccountID string  `path:"account_id,required"`
 	Period    string  `query:"period,required"`
 	Timeframe *string `query:"timeframe,omitempty"`
 }
@@ -297,7 +297,7 @@ type AccountAdminConfigurations struct {
 }
 
 type GetOnfidoSDKTokenParams struct {
-	AccountID string  `path:"id,required"`
+	AccountID string  `path:"account_id,required"`
 	Referrer  *string `query:"referrer,omitempty"`
 	Platform  *string `query:"platform,omitempty"`
 }
@@ -307,7 +307,7 @@ type GetOnfidoSDKTokenResponse struct {
 }
 
 type UpdateOnfidoSDKOutcomeParams struct {
-	AccountID string `path:"id,required"`
+	AccountID string `path:"account_id,required"`
 }
 
 type UpdateOnfidoSDKOutcomeRequest struct {

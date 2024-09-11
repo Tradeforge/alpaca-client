@@ -11,14 +11,14 @@ import (
 const (
 	CreateAccountPath          = "/v1/accounts"
 	ListAccountsPath           = "/v1/accounts"
-	GetAccountPath             = "/v1/accounts/:id"
-	GetAccountHistoryPath      = "/v1/trading/accounts/:id/account/portfolio/history"
-	GetAccountTradingDetails   = "/v1/trading/accounts/:id/account"
-	GetOnfidoSDKTokenPath      = "/v1/accounts/:id/onfido/sdk/tokens"
-	UpdateOnfidoSDKOutcomePath = "/v1/accounts/:id/onfido/sdk"
+	GetAccountPath             = "/v1/accounts/:account_id"
+	GetOnfidoSDKTokenPath      = "/v1/accounts/:account_id/onfido/sdk/tokens"
+	UpdateOnfidoSDKOutcomePath = "/v1/accounts/:account_id/onfido/sdk"
+	GetAccountHistoryPath      = "/v1/trading/accounts/:account_id/account/portfolio/history"
+	GetAccountTradingDetails   = "/v1/trading/accounts/:account_id/account"
 )
 
-// AccountClient is a client for the broker account API.
+// FundingClient is a client for the broker account API.
 type AccountClient struct {
 	*client.Client
 }

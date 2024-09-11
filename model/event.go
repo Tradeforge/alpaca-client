@@ -40,9 +40,9 @@ type AccountStatusUpdateEvent struct {
 
 // OrderEvent represents an order event.
 type OrderEvent struct {
-	ID          string         `json:"event_id"`
+	ID          uuid.UUID      `json:"event_id"`
 	AccountID   uuid.UUID      `json:"account_id"`
-	ExecutionID string         `json:"execution_id"`
+	ExecutionID uuid.UUID      `json:"execution_id"`
 	Event       OrderEventType `json:"event"`
 	Order       Order          `json:"order"`
 	// The average price per share at which the order was filled.
@@ -107,8 +107,8 @@ func (e OrderEventType) String() string {
 type TransferStatusUpdateEvent struct {
 	ID         string         `json:"event_id"`
 	ULID       string         `json:"event_ulid"`
-	AccountID  string         `json:"account_id"`
-	TransferID string         `json:"transfer_id"`
+	AccountID  uuid.UUID      `json:"account_id"`
+	TransferID uuid.UUID      `json:"transfer_id"`
 	StatusFrom TransferStatus `json:"status_from"`
 	StatusTo   TransferStatus `json:"status_to"`
 	Timestamp  time.Time      `json:"at"`

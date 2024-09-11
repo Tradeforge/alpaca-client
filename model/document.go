@@ -17,7 +17,7 @@ type UploadDocumentRequest struct {
 }
 
 type UploadDocumentParams struct {
-	AccountID string `path:"id"`
+	AccountID string `path:"account_id"`
 }
 
 type UploadDocumentResponse struct{}

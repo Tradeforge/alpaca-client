@@ -127,7 +127,7 @@ type TakeProfitPrice struct {
 }
 
 type CreateOrderParams struct {
-	AccountID string `path:"id"`
+	AccountID string `path:"account_id"`
 }
 
 type CreateOrderResponse struct {
@@ -135,7 +135,7 @@ type CreateOrderResponse struct {
 }
 
 type GetOrderParams struct {
-	AccountID string `path:"id"`
+	AccountID string `path:"account_id"`
 	OrderID   string `path:"order_id"`
 }
 
@@ -144,7 +144,7 @@ type GetOrderResponse struct {
 }
 
 type ListOrdersParams struct {
-	AccountID string    `path:"id"`
+	AccountID string    `path:"account_id"`
 	Limit     int       `query:"limit"`
 	After     time.Time `query:"after"`
 	Until     time.Time `query:"until"`

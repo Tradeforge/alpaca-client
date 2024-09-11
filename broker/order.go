@@ -9,10 +9,10 @@ import (
 )
 
 const (
-	EstimateOrderPath = "/v1/trading/accounts/:id/orders/estimation"
-	CreateOrderPath   = "/v1/trading/accounts/:id/orders"
-	GetOrderPath      = "/v1/trading/accounts/:id/orders/:order_id"
-	ListOrdersPath    = "/v1/trading/accounts/:id/orders"
+	EstimateOrderPath = "/v1/trading/accounts/:account_id/orders/estimation"
+	CreateOrderPath   = "/v1/trading/accounts/:account_id/orders"
+	GetOrderPath      = "/v1/trading/accounts/:account_id/orders/:order_id"
+	ListOrdersPath    = "/v1/trading/accounts/:account_id/orders"
 )
 
 type OrderClient struct {

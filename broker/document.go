@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	UploadDocumentPath = "/v1/accounts/:id/documents/upload"
+	UploadDocumentPath = "/v1/accounts/:account_id/documents/upload"
 )
 
 // DocumentClient is a client for the document API.
