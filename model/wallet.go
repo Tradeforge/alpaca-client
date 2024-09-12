@@ -1,6 +1,11 @@
 package model
 
-import "github.com/google/uuid"
+import (
+	"time"
+
+	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
+)
 
 type CreateFundingWalletRequest struct {
 	AccountID uuid.UUID `json:"account_id"`
@@ -40,4 +45,40 @@ type FundingDetail struct {
 	PaymentType       string `json:"payment_type"`
 	RoutingCode       string `json:"routing_code"`
 	RoutingCodeType   string `json:"routing_code_type"`
+}
+
+type CreateInstantFundingRequest struct {
+	TargetAccountNumber string          `json:"account_no"`
+	SourceAccountNumber string          `json:"source_account_no"`
+	Amount              decimal.Decimal `json:"amount"`
+}
+
+type CreateInstantFundingResponse struct {
+	ID               uuid.UUID         `json:"id"`
+	Amount           decimal.Decimal   `json:"amount"`
+	AccountNo        string            `json:"account_no"`
+	SourceAccountNo  string            `json:"source_account_no"`
+	TotalInterest    decimal.Decimal   `json:"total_interest"`
+	RemainingPayable decimal.Decimal   `json:"remaining_payable"`
+	Interests        []DepositInterest `json:"interests"`
+	Fees             []DepositFee      `json:"fees"`
+	SystemDate       string            `json:"system_date"`
+	Deadline         string            `json:"deadline"`
+	Status           string            `json:"status"`
+	CreatedAt        time.Time         `json:"created_at"`
+}
+
+type DepositInterest struct {
+	ID           uuid.UUID       `json:"id"`
+	Date         string          `json:"date"`
+	Amount       decimal.Decimal `json:"amount"`
+	Status       string          `json:"status"`
+	CreatedAt    time.Time       `json:"created_at"`
+	ReconciledAt time.Time       `json:"reconciled_at"`
+}
+
+type DepositFee struct {
+	ID     uuid.UUID       `json:"id"`
+	Amount decimal.Decimal `json:"amount"`
+	Type   string          `json:"type"`
 }

@@ -9,9 +9,10 @@ import (
 )
 
 const (
-	CreateFundingWalletPath = "/v1beta/accounts/:account_id/funding_wallet"
-	GetFundingWalletPath    = "/v1beta/accounts/:account_id/funding_wallet"
-	GetFundingDetailsPath   = "/v1beta/accounts/:account_id/funding_wallet/funding_details"
+	CreateFundingWalletPath  = "/v1beta/accounts/:account_id/funding_wallet"
+	GetFundingWalletPath     = "/v1beta/accounts/:account_id/funding_wallet"
+	GetFundingDetailsPath    = "/v1beta/accounts/:account_id/funding_wallet/funding_details"
+	CreateInstantDepositPath = "/v1/instant_funding"
 )
 
 // FundingClient is a client for the broker account API.
@@ -34,5 +35,11 @@ func (fc *FundingClient) GetFundingWallet(ctx context.Context, params *model.Get
 func (fc *FundingClient) GetFundingDetails(ctx context.Context, params *model.GetFundingDetailsParams, opts ...model.RequestOption) (model.GetFundingDetailsResponse, error) {
 	res := model.GetFundingDetailsResponse{}
 	err := fc.Call(ctx, http.MethodGet, GetFundingDetailsPath, params, &res, opts...)
+	return res, err
+}
+
+func (fc *FundingClient) CreateInstantFundingRequest(ctx context.Context, data *model.CreateInstantFundingRequest, opts ...model.RequestOption) (*model.CreateInstantFundingResponse, error) {
+	res := &model.CreateInstantFundingResponse{}
+	err := fc.Call(ctx, http.MethodPost, CreateInstantDepositPath, nil, res, append(opts, model.Body(data))...)
 	return res, err
 }
