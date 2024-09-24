@@ -110,14 +110,8 @@ func (c *Client) executeRequest(
 ) (*resty.Response, error) {
 	res, err := req.Execute(method, uri)
 	if err != nil {
-		c.logger.Error(
-			err.Error(),
-			slog.Any("response", res))
 		return nil, fmt.Errorf("failed to execute request: %w", err)
 	} else if res.IsError() {
-		c.logger.Error(
-			res.String(),
-			slog.Any("response", res))
 		responseError := parseResponseError(res)
 		return nil, responseError
 	}
