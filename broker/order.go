@@ -11,6 +11,7 @@ import (
 const (
 	EstimateOrderPath = "/v1/trading/accounts/:account_id/orders/estimation"
 	CreateOrderPath   = "/v1/trading/accounts/:account_id/orders"
+	CancelOrderPath   = "/v1/trading/accounts/:account_id/orders/:order_id"
 	GetOrderPath      = "/v1/trading/accounts/:account_id/orders/:order_id"
 	ListOrdersPath    = "/v1/trading/accounts/:account_id/orders"
 )
@@ -29,6 +30,10 @@ func (oc *OrderClient) CreateOrder(ctx context.Context, params *model.CreateOrde
 	res := &model.CreateOrderResponse{}
 	err := oc.Call(ctx, http.MethodPost, CreateOrderPath, params, res, append(opts, model.Body(data))...)
 	return res, err
+}
+
+func (oc *OrderClient) CancelOrder(ctx context.Context, params *model.CancelOrderParams, opts ...model.RequestOption) error {
+	return oc.Call(ctx, http.MethodDelete, CancelOrderPath, params, nil, opts...)
 }
 
 func (oc *OrderClient) ListOrders(ctx context.Context, params *model.ListOrdersParams, opts ...model.RequestOption) (model.ListOrdersResponse, error) {

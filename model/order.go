@@ -134,6 +134,11 @@ type CreateOrderResponse struct {
 	Order
 }
 
+type CancelOrderParams struct {
+	AccountID string `path:"account_id"`
+	OrderID   string `path:"order_id"`
+}
+
 type GetOrderParams struct {
 	AccountID string `path:"account_id"`
 	OrderID   string `path:"order_id"`
