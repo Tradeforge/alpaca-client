@@ -38,3 +38,9 @@ type GetOpenPositionResponse struct {
 		ChangeToday            decimal.Decimal `json:"change_today"`
 	} `json:"usd"`
 }
+
+type ListOpenPositionsParams struct {
+	AccountID string `path:"account_id"`
+}
+
+type ListOpenPositionsResponse []GetOpenPositionResponse
