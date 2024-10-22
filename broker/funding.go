@@ -20,26 +20,26 @@ type FundingClient struct {
 	*client.Client
 }
 
-func (fc *FundingClient) CreateFundingWallet(ctx context.Context, data *model.CreateFundingWalletRequest, opts ...model.RequestOption) (*model.CreateFundingWalletResponse, error) {
+func (fc *FundingClient) CreateFundingWallet(ctx context.Context, params model.CreateFundingWalletParams, data *model.CreateFundingWalletRequest, opts ...model.RequestOption) (*model.CreateFundingWalletResponse, error) {
 	res := &model.CreateFundingWalletResponse{}
-	err := fc.Call(ctx, http.MethodPost, CreateFundingWalletPath, nil, res, append(opts, model.Body(data))...)
+	err := fc.Call(ctx, http.MethodPost, CreateFundingWalletPath, params, res, append(opts, model.Body(data))...)
 	return res, err
 }
 
-func (fc *FundingClient) GetFundingWallet(ctx context.Context, params *model.GetFundingWalletParams, opts ...model.RequestOption) (*model.GetFundingWalletResponse, error) {
+func (fc *FundingClient) GetFundingWallet(ctx context.Context, params model.GetFundingWalletParams, opts ...model.RequestOption) (*model.GetFundingWalletResponse, error) {
 	res := &model.GetFundingWalletResponse{}
 	err := fc.Call(ctx, http.MethodGet, GetFundingWalletPath, params, res, opts...)
 	return res, err
 }
 
-func (fc *FundingClient) GetFundingDetails(ctx context.Context, params *model.GetFundingDetailsParams, opts ...model.RequestOption) (model.GetFundingDetailsResponse, error) {
+func (fc *FundingClient) GetFundingDetails(ctx context.Context, params model.GetFundingDetailsParams, opts ...model.RequestOption) (model.GetFundingDetailsResponse, error) {
 	res := model.GetFundingDetailsResponse{}
 	err := fc.Call(ctx, http.MethodGet, GetFundingDetailsPath, params, &res, opts...)
 	return res, err
 }
 
-func (fc *FundingClient) CreateInstantFundingRequest(ctx context.Context, data *model.CreateInstantFundingRequest, opts ...model.RequestOption) (*model.CreateInstantFundingResponse, error) {
+func (fc *FundingClient) CreateInstantFundingRequest(ctx context.Context, params model.CreateInstantFundingParams, data model.CreateInstantFundingRequest, opts ...model.RequestOption) (*model.CreateInstantFundingResponse, error) {
 	res := &model.CreateInstantFundingResponse{}
-	err := fc.Call(ctx, http.MethodPost, CreateInstantDepositPath, nil, res, append(opts, model.Body(data))...)
+	err := fc.Call(ctx, http.MethodPost, CreateInstantDepositPath, params, res, append(opts, model.Body(data))...)
 	return res, err
 }

@@ -17,7 +17,7 @@ type DocumentClient struct {
 	*client.Client
 }
 
-func (ac *AccountClient) UploadDocument(ctx context.Context, data *model.UploadDocumentRequest, params *model.UploadDocumentParams, opts ...model.RequestOption) error {
+func (ac *AccountClient) UploadDocument(ctx context.Context, params model.UploadDocumentParams, data *model.UploadDocumentRequest, opts ...model.RequestOption) error {
 	res := &model.UploadDocumentResponse{}
 	err := ac.Call(ctx, http.MethodPost, UploadDocumentPath, params, res, model.Body(data))
 	return err

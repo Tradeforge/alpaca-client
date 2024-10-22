@@ -18,13 +18,13 @@ type MarketClient struct {
 	*client.Client
 }
 
-func (cc *MarketClient) ListAssets(ctx context.Context, params *model.ListAssetsParams, opts ...model.RequestOption) ([]model.Asset, error) {
+func (cc *MarketClient) ListAssets(ctx context.Context, params model.ListAssetsParams, opts ...model.RequestOption) ([]model.Asset, error) {
 	res := model.ListAssetsResponse{}
 	err := cc.Call(ctx, http.MethodGet, ListAssetsPath, params, &res, opts...)
 	return res, err
 }
 
-func (cc *MarketClient) GetCalendar(ctx context.Context, params *model.GetCalendarParams, opts ...model.RequestOption) (*model.GetCalendarResponse, error) {
+func (cc *MarketClient) GetCalendar(ctx context.Context, params model.GetCalendarParams, opts ...model.RequestOption) (*model.GetCalendarResponse, error) {
 	res := &model.GetCalendarResponse{}
 	err := cc.Call(ctx, http.MethodGet, GetCalendarPath, params, res, opts...)
 	return res, err

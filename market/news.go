@@ -16,7 +16,7 @@ type NewsClient struct {
 	*client.Client
 }
 
-func (nc *NewsClient) GetLatestNews(ctx context.Context, params *model.GetNewsParams, opts ...model.RequestOption) (*model.GetNewsResponse, error) {
+func (nc *NewsClient) GetLatestNews(ctx context.Context, params model.GetNewsParams, opts ...model.RequestOption) (*model.GetNewsResponse, error) {
 	res := &model.GetNewsResponse{}
 	err := nc.Call(ctx, http.MethodGet, GetNewsPath, params, res, opts...)
 	return res, err

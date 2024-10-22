@@ -7,6 +7,10 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+type CreateFundingWalletParams struct {
+	AccountID string `path:"account_id"`
+}
+
 type CreateFundingWalletRequest struct {
 	AccountID uuid.UUID `json:"account_id"`
 }
@@ -45,6 +49,10 @@ type FundingDetail struct {
 	PaymentType       string `json:"payment_type"`
 	RoutingCode       string `json:"routing_code"`
 	RoutingCodeType   string `json:"routing_code_type"`
+}
+
+type CreateInstantFundingParams struct {
+	AccountID string `path:"account_id"`
 }
 
 type CreateInstantFundingRequest struct {

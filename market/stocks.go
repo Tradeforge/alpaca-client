@@ -25,19 +25,19 @@ type StocksClient struct {
 	logger *slog.Logger
 }
 
-func (sc *StocksClient) GetLatestQuotes(ctx context.Context, params *model.GetLatestQuotesParams, opts ...model.RequestOption) (*model.GetLatestQuotesResponse, error) {
+func (sc *StocksClient) GetLatestQuotes(ctx context.Context, params model.GetLatestQuotesParams, opts ...model.RequestOption) (*model.GetLatestQuotesResponse, error) {
 	res := &model.GetLatestQuotesResponse{}
 	err := sc.Call(ctx, http.MethodGet, GetLatestQuotesPath, params, res, opts...)
 	return res, err
 }
 
-func (sc *StocksClient) GetSnapshots(ctx context.Context, params *model.GetSnapshotsParams, opts ...model.RequestOption) (*model.GetSnapshotsResponse, error) {
+func (sc *StocksClient) GetSnapshots(ctx context.Context, params model.GetSnapshotsParams, opts ...model.RequestOption) (*model.GetSnapshotsResponse, error) {
 	res := map[string]model.Snapshot{}
 	err := sc.Call(ctx, http.MethodGet, GetSnapshotsPath, params, &res, opts...)
 	return &model.GetSnapshotsResponse{Snapshots: res}, err
 }
 
-func (sc *StocksClient) GetHistoricalBars(ctx context.Context, params *model.GetHistoricalBarsParams, opts ...model.RequestOption) (*model.GetHistoricalBarsResponse, error) {
+func (sc *StocksClient) GetHistoricalBars(ctx context.Context, params model.GetHistoricalBarsParams, opts ...model.RequestOption) (*model.GetHistoricalBarsResponse, error) {
 	res := &model.GetHistoricalBarsResponse{}
 	err := sc.Call(ctx, http.MethodGet, GetHistoricalBarsPath, params, res, opts...)
 	return res, err
@@ -50,7 +50,7 @@ type StockBarUpdateHandler func(context.Context, *model.Bar) error
 // This is a non-blocking call.
 func (sc *StocksClient) SubscribeToBarsEvents(
 	ctx context.Context,
-	params *model.StreamStockUpdatesParams,
+	params model.StreamStockUpdatesParams,
 	handle StockBarUpdateHandler,
 ) error {
 	if err := sc.stream.Connect(ctx); err != nil {
