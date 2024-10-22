@@ -51,10 +51,6 @@ type FundingDetail struct {
 	RoutingCodeType   string `json:"routing_code_type"`
 }
 
-type CreateInstantFundingParams struct {
-	AccountID string `path:"account_id"`
-}
-
 type CreateInstantFundingRequest struct {
 	TargetAccountNumber string          `json:"account_no"`
 	SourceAccountNumber string          `json:"source_account_no"`

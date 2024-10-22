@@ -38,8 +38,8 @@ func (fc *FundingClient) GetFundingDetails(ctx context.Context, params model.Get
 	return res, err
 }
 
-func (fc *FundingClient) CreateInstantFundingRequest(ctx context.Context, params model.CreateInstantFundingParams, data model.CreateInstantFundingRequest, opts ...model.RequestOption) (*model.CreateInstantFundingResponse, error) {
+func (fc *FundingClient) CreateInstantFundingRequest(ctx context.Context, data model.CreateInstantFundingRequest, opts ...model.RequestOption) (*model.CreateInstantFundingResponse, error) {
 	res := &model.CreateInstantFundingResponse{}
-	err := fc.Call(ctx, http.MethodPost, CreateInstantDepositPath, params, res, append(opts, model.Body(data))...)
+	err := fc.Call(ctx, http.MethodPost, CreateInstantDepositPath, nil, res, append(opts, model.Body(data))...)
 	return res, err
 }
