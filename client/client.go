@@ -111,9 +111,26 @@ func (c *Client) executeRequest(
 	res, err := req.Execute(method, uri)
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute request: %w", err)
-	} else if res.IsError() {
+	}
+	if res.IsError() {
 		responseError := parseResponseError(res)
-		return nil, responseError
+		if responseError != nil {
+			c.logger.Error(
+				"response error",
+				slog.String("url", uri),
+				slog.Int("status", responseError.StatusCode),
+				slog.String("error message", responseError.Message),
+			)
+		} else {
+			c.logger.Error(
+				"response error",
+				slog.String("url", uri),
+				slog.Int("status", res.StatusCode()),
+				slog.String("error message", res.Status()),
+				slog.String("response", string(res.Body())),
+			)
+		}
+		return res, responseError
 	}
 
 	if trace {
@@ -130,7 +147,6 @@ func (c *Client) executeRequest(
 			slog.Any("response headers", res.Header()),
 		)
 	}
-
 	return res, nil
 }
 

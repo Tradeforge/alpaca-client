@@ -17,7 +17,10 @@ type ResponseError struct {
 
 // Error returns the details of an error response.
 func (e *ResponseError) Error() string {
-	return fmt.Sprintf("bad status with code '%d': message '%s': request ID '%s'", e.StatusCode, e.Message, e.RequestID)
+	if e.Message != "" {
+		return fmt.Sprintf("request %s failed with code %d: %s", e.RequestID, e.StatusCode, e.Message)
+	}
+	return fmt.Sprintf("request %s failed with code %d", e.RequestID, e.StatusCode)
 }
 
 func AsResponseError(obj any) (*ResponseError, bool) {
