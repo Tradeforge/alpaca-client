@@ -91,7 +91,12 @@ func (c *Client) CallURL(ctx context.Context, method, uri string, response any, 
 	}
 	req.SetQueryParamsFromValues(options.QueryParams)
 	req.SetHeaderMultiValues(options.Headers)
-	req.SetResult(response).SetError(&alpacaerrors.ResponseError{})
+	if response == nil || response == http.NoBody {
+		req.SetDoNotParseResponse(true)
+	} else {
+		req.SetResult(response)
+	}
+	req.SetError(&alpacaerrors.ResponseError{})
 	req.SetHeader("Content-Type", "application/json")
 
 	_, err := c.executeRequest(ctx, req, method, uri, options.Trace)
