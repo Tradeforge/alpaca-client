@@ -38,6 +38,12 @@ func (fc *FundingClient) GetFundingDetails(ctx context.Context, params model.Get
 	return res, err
 }
 
+func (fc *FundingClient) CreateSandboxDeposit(ctx context.Context, data *model.CreateSandboxDepositRequest, opts ...model.RequestOption) (*model.CreateSandboxDepositResponse, error) {
+	res := &model.CreateSandboxDepositResponse{}
+	err := fc.Call(ctx, http.MethodPost, CreateInstantDepositPath, nil, res, append(opts, model.Body(data))...)
+	return res, err
+}
+
 func (fc *FundingClient) CreateInstantFundingRequest(ctx context.Context, data *model.CreateInstantFundingRequest, opts ...model.RequestOption) (*model.CreateInstantFundingResponse, error) {
 	res := &model.CreateInstantFundingResponse{}
 	err := fc.Call(ctx, http.MethodPost, CreateInstantDepositPath, nil, res, append(opts, model.Body(data))...)

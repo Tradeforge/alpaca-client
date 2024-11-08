@@ -51,6 +51,20 @@ type FundingDetail struct {
 	RoutingCodeType   string `json:"routing_code_type"`
 }
 
+type CreateSandboxDepositRequest struct {
+	TargetAccountNumber string          `json:"receiver_account_number"`
+	RoutingCode         string          `json:"receiver_routing_code"`
+	Amount              decimal.Decimal `json:"amount"`
+	Currency            string          `json:"currency"`
+}
+
+type CreateSandboxDepositResponse struct {
+	TargetAccountNumber string          `json:"receiver_account_number"`
+	RoutingCode         string          `json:"receiver_routing_code"`
+	Amount              decimal.Decimal `json:"amount"`
+	Currency            string          `json:"currency"`
+}
+
 type CreateInstantFundingRequest struct {
 	TargetAccountNumber string          `json:"account_no"`
 	SourceAccountNumber string          `json:"source_account_no"`
