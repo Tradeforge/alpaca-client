@@ -13,6 +13,7 @@ const (
 	GetFundingWalletPath     = "/v1beta/accounts/:account_id/funding_wallet"
 	GetFundingDetailsPath    = "/v1beta/accounts/:account_id/funding_wallet/funding_details"
 	CreateInstantDepositPath = "/v1/instant_funding"
+	CreateSandBoxDepositPath = "/v1beta/demo/banking/funding"
 )
 
 // FundingClient is a client for the broker account API.
@@ -40,7 +41,7 @@ func (fc *FundingClient) GetFundingDetails(ctx context.Context, params model.Get
 
 func (fc *FundingClient) CreateSandboxDeposit(ctx context.Context, data *model.CreateSandboxDepositRequest, opts ...model.RequestOption) (*model.CreateSandboxDepositResponse, error) {
 	res := &model.CreateSandboxDepositResponse{}
-	err := fc.Call(ctx, http.MethodPost, CreateInstantDepositPath, nil, res, append(opts, model.Body(data))...)
+	err := fc.Call(ctx, http.MethodPost, CreateSandBoxDepositPath, nil, res, append(opts, model.Body(data))...)
 	return res, err
 }
 
