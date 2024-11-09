@@ -18,7 +18,6 @@ const (
 	GetAccountTradingDetails   = "/v1/trading/accounts/:account_id/account"
 )
 
-// FundingClient is a client for the broker account API.
 type AccountClient struct {
 	*client.Client
 }
