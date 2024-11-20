@@ -40,7 +40,7 @@ type AccountStatusUpdateEvent struct {
 
 // OrderEvent represents an order event.
 type OrderEvent struct {
-	ID          uuid.UUID      `json:"event_id"`
+	ID          string         `json:"event_id"`
 	AccountID   uuid.UUID      `json:"account_id"`
 	ExecutionID uuid.UUID      `json:"execution_id"`
 	Event       OrderEventType `json:"event"`
