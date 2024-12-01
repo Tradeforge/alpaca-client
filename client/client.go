@@ -163,18 +163,22 @@ type EventStreamHandler func(ctx context.Context, event *sse.Event) error
 //
 // NOTE: The event reader should not be shared between multiple listeners, otherwise, there might be unexpected parsing results.
 func (c *Client) Listen(ctx context.Context, path string, params any, handler EventStreamHandler, opts ...model.RequestOption) error {
-	r, err := c.listenToSSE(ctx, path, params, opts...)
+	cancellableContext, cancel := context.WithCancel(ctx)
+
+	r, err := c.listenToSSE(cancellableContext, path, params, opts...)
 	if err != nil {
+		cancel()
 		return fmt.Errorf("initializing SSE stream: %w", err)
 	}
 	defer func() {
 		if err := r.Close(); err != nil {
 			c.logger.Error("closing stream", slog.Any("error", err))
 		}
+		cancel()
 	}()
 
 	evtChannel, errChannel := make(chan *sse.Event, 1), make(chan error, 1)
-	go c.startReadingSSE(r, evtChannel, errChannel)
+	c.startReadingSSE(cancellableContext, r, evtChannel, errChannel)
 	for {
 		select {
 		case <-ctx.Done():
@@ -205,18 +209,22 @@ func (c *Client) Listen(ctx context.Context, path string, params any, handler Ev
 //
 // NOTE: The event reader should not be shared between multiple listeners, otherwise, there might be unexpected parsing results.
 func (c *Client) Subscribe(ctx context.Context, path string, params any, handler EventStreamHandler, opts ...model.RequestOption) error {
-	r, err := c.listenToSSE(ctx, path, params, opts...)
+	cancellableContext, cancel := context.WithCancel(ctx)
+
+	r, err := c.listenToSSE(cancellableContext, path, params, opts...)
 	if err != nil {
+		cancel()
 		return fmt.Errorf("initializing SSE stream: %w", err)
 	}
 	defer func() {
 		if err := r.Close(); err != nil {
 			c.logger.Error("closing stream", slog.Any("error", err))
 		}
+		cancel()
 	}()
 
 	evtChannel, errChannel := make(chan *sse.Event, 1), make(chan error, 1)
-	go c.startReadingSSE(r, evtChannel, errChannel)
+	go c.startReadingSSE(cancellableContext, r, evtChannel, errChannel)
 	go func() {
 	L:
 		for {
@@ -275,12 +283,15 @@ func (c *Client) listenToSSE(ctx context.Context, path string, params any, opts 
 	return res.RawBody(), nil
 }
 
-func (c *Client) startReadingSSE(r io.ReadCloser, evtCh chan<- *sse.Event, errCh chan<- error) {
+func (c *Client) startReadingSSE(ctx context.Context, r io.ReadCloser, evtCh chan<- *sse.Event, errCh chan<- error) {
 	parser := sse.NewParser()
 	reader := bufio.NewReader(r)
 
 	go func() {
 		for {
+			if ctx.Done() != nil {
+				return
+			}
 			l, err := reader.ReadString('\n')
 			if err != nil {
 				errCh <- fmt.Errorf("reading message: %w", err)
