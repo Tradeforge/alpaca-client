@@ -178,7 +178,7 @@ func (c *Client) Listen(ctx context.Context, path string, params any, handler Ev
 	}()
 
 	evtChannel, errChannel := make(chan *sse.Event, 1), make(chan error, 1)
-	c.startReadingSSE(cancellableContext, r, evtChannel, errChannel)
+	go c.startReadingSSE(cancellableContext, r, evtChannel, errChannel)
 	for {
 		select {
 		case <-ctx.Done():
@@ -287,11 +287,12 @@ func (c *Client) startReadingSSE(ctx context.Context, r io.ReadCloser, evtCh cha
 	parser := sse.NewParser()
 	reader := bufio.NewReader(r)
 
-	go func() {
-		for {
-			if ctx.Done() != nil {
-				return
-			}
+	for {
+		select {
+		case <-ctx.Done():
+			c.logger.Debug("context cancelled", slog.Any("error", ctx.Err()))
+			return
+		default:
 			l, err := reader.ReadString('\n')
 			if err != nil {
 				errCh <- fmt.Errorf("reading message: %w", err)
@@ -307,7 +308,7 @@ func (c *Client) startReadingSSE(ctx context.Context, r io.ReadCloser, evtCh cha
 			}
 			evtCh <- evt
 		}
-	}()
+	}
 }
 
 func mergeOptions(opts ...model.RequestOption) *model.RequestOptions {
