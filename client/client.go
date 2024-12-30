@@ -293,8 +293,15 @@ func (c *Client) startReadingSSE(ctx context.Context, r io.ReadCloser, evtCh cha
 			c.logger.Debug("context cancelled", slog.Any("error", ctx.Err()))
 			return
 		default:
+			if reader.Size() == 0 {
+				//nolint:mnd
+				time.Sleep(10 * time.Millisecond)
+			}
 			l, err := reader.ReadString('\n')
 			if err != nil {
+				if errors.Is(err, io.EOF) {
+					continue // Keep reading.
+				}
 				errCh <- fmt.Errorf("reading message: %w", err)
 				return
 			}
